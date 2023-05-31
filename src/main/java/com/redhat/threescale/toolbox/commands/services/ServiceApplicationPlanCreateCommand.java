@@ -42,7 +42,7 @@ public class ServiceApplicationPlanCreateCommand implements Runnable {
     @Option(names = {"--trial-period-days",}, description = "Trial period in days.")
     public Integer trialPeriodDays;
 
-    @Option(names = {"--state-event",}, description = "State event")
+    @Option(names = {"--state-event",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
 
     @Override

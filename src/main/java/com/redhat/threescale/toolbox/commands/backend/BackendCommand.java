@@ -13,7 +13,8 @@ import picocli.CommandLine.ParameterException;
                         BackendUpdateCommand.class,
                         BackendDeleteCommand.class,
                         BackendMappingRulesCommand.class,
-                        BackendMetricsCommand.class
+                        BackendMetricsCommand.class,
+                        BackendUsagesCommand.class
                         }, 
         synopsisSubcommandLabel = "COMMAND")
 public class BackendCommand implements Runnable {

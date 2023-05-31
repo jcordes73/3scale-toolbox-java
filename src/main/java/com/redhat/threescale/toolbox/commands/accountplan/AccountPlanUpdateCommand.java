@@ -32,7 +32,7 @@ public class AccountPlanUpdateCommand implements Runnable {
     @Option(names = {"--approval-required"}, description = "Approval required")
     public boolean approvalRequired;
 
-    @Option(names = {"--state-event"}, description = "State event")
+    @Option(names = {"--state-event"}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
 
     @Override

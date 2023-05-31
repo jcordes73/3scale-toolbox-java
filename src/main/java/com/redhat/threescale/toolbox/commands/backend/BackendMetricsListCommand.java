@@ -40,7 +40,7 @@ public class BackendMetricsListCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = accountManagementService.getBackendMetrics(backendId, backendId, page, perPage);
+            String response = accountManagementService.getBackendMetrics(backendId, accessToken, page, perPage);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

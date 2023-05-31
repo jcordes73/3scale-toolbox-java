@@ -22,6 +22,7 @@ import picocli.CommandLine.ParameterException;
                         AccountPlanChangeCommand.class,
                         AccountCreditCardCommand.class,
                         AccountUserCommand.class,
+                        AccountFeatureCommand.class
                         }, 
         synopsisSubcommandLabel = "COMMAND")
 public class AccountCommand implements Runnable {

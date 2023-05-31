@@ -10,7 +10,9 @@ import picocli.CommandLine.ParameterException;
          subcommands = {BackendMetricsListCommand.class,
                         BackendMetricGetCommand.class,
                         BackendMetricCreateCommand.class,
-                        BackendMetricUpdateCommand.class
+                        BackendMetricUpdateCommand.class,
+                        BackendMetricDeleteCommand.class,
+                        BackendMetricMethodsCommand.class
                         }, 
         synopsisSubcommandLabel = "COMMAND")
 public class BackendMetricsCommand implements Runnable {

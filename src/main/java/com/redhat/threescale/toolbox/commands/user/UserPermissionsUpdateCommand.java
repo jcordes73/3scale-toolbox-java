@@ -1,6 +1,7 @@
 package com.redhat.threescale.toolbox.commands.user;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 
@@ -37,7 +38,15 @@ public class UserPermissionsUpdateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.updateUserPermissions(userId, accessToken, Arrays.asList(allowedServiceIds.split(",")), Arrays.asList(allowedSections.split(",")));
+            List<String> allowedServiceIdsList = null;
+            if (allowedServiceIds != null)
+                allowedServiceIdsList= Arrays.asList(allowedServiceIds.split(","));
+
+            List<String> allowedSectionsList = null;
+            if (allowedSections != null)
+                allowedSectionsList = Arrays.asList(allowedSections.split(","));
+                
+            accountManagementService.updateUserPermissions(userId, accessToken, allowedServiceIdsList, allowedSectionsList);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }   

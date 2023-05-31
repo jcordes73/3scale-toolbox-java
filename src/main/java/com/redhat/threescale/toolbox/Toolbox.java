@@ -8,10 +8,15 @@ import com.redhat.threescale.toolbox.commands.applications.ApplicationCommand;
 import com.redhat.threescale.toolbox.commands.authentication.AuthenticationCommand;
 import com.redhat.threescale.toolbox.commands.backend.BackendCommand;
 import com.redhat.threescale.toolbox.commands.config.ConfigCommand;
+import com.redhat.threescale.toolbox.commands.fielddefinitions.FieldDefinitionsCommand;
 import com.redhat.threescale.toolbox.commands.invoice.InvoiceCommand;
+import com.redhat.threescale.toolbox.commands.objects.ObjectsCommand;
 import com.redhat.threescale.toolbox.commands.policy.PolicyCommand;
+import com.redhat.threescale.toolbox.commands.provider.ProviderCommand;
+import com.redhat.threescale.toolbox.commands.serviceplans.ServicePlansCommand;
 import com.redhat.threescale.toolbox.commands.services.ServiceCommand;
 import com.redhat.threescale.toolbox.commands.user.UserCommand;
+import com.redhat.threescale.toolbox.commands.webhooks.WebhooksCommand;
 
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.QuarkusApplication;
@@ -34,7 +39,12 @@ import picocli.CommandLine.Command;
                         ActiveDocsCommand.class,
                         AuthenticationCommand.class,
                         InvoiceCommand.class,
-                        PolicyCommand.class
+                        PolicyCommand.class,
+                        FieldDefinitionsCommand.class,
+                        ObjectsCommand.class,
+                        ProviderCommand.class,
+                        ServicePlansCommand.class,
+                        WebhooksCommand.class
                         },
                         synopsisSubcommandLabel = "COMMAND")
 public class Toolbox implements Runnable, QuarkusApplication {

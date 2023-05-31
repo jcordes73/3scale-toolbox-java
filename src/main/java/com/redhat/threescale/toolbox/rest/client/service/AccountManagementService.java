@@ -8,6 +8,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -44,6 +45,46 @@ public interface AccountManagementService {
         day,
         hour,
         minute
+    }
+
+    enum FieldTarget {
+        Account,
+        User,
+        Cinstance
+    }
+
+    enum ObjectType {
+        service,
+        account,
+        proxy,
+        backend_api
+    }
+
+    enum DeploymentOption {
+        hosted,
+        self_managed,
+        service_mesh_istio
+    }
+
+    enum FeatureScope {
+        ApplicationPlan,
+        ServicePlan
+    }
+
+    enum Environment {
+        sandbox,
+        production
+    }
+
+    enum CredentialsLocation {
+        headers,
+        query,
+        authorization
+    }
+
+    enum ClientIdType {
+        plain,
+        liquid
     }
 
     @POST
@@ -1018,7 +1059,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendMetrics(
         @PathParam("backendId") int backendId,
-        @QueryParam("access_token") int accessToken,
+        @QueryParam("access_token") String accessToken,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage       
     );
@@ -1053,5 +1094,754 @@ public interface AccountManagementService {
         @FormParam("friendly_name") String friendlyName,
         @FormParam("unit") String unit,
         @FormParam("description") String description
+    );
+
+    @DELETE
+    @Path("/backend_apis/{backendId}/metrics/{metricId}.json")
+    public void deleteBackendMetric(
+        @PathParam("backendId") int backendId,
+        @PathParam("metricId") int metricId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/backend_apis/{backendId}/metrics/{metricId}/methods.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getBackendMetricMethods(
+        @PathParam("backendId") int backendId,
+        @PathParam("metricId") int metricId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/backend_apis/{backendId}/metrics/{metricId}/methods.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public String createBackendMetricMethod(
+        @PathParam("backendId") int backendId,
+        @PathParam("metricId") int metricId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("friendly_name") String friendlyName,
+        @FormParam("system_name") String systemName,
+        @FormParam("unit") String unit,
+        @FormParam("description") String description
+    );
+
+    @GET
+    @Path("/backend_apis/{backendId}/metrics/{metricId}/methods/{methodId}.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public String getBackendMetricMethod(
+        @PathParam("backendId") int backendId,
+        @PathParam("metricId") int metricId,
+        @PathParam("methodId") int methodId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/backend_apis/{backendId}/metrics/{metricId}/methods/{methodId}.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateBackendMetricMethod(
+        @PathParam("backendId") int backendId,
+        @PathParam("metricId") int metricId,
+        @PathParam("methodId") int methodId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("friendly_name") String friendlyName,
+        @FormParam("unit") String unit,
+        @FormParam("description") String description
+    );
+
+    @DELETE
+    @Path("/backend_apis/{backendId}/metrics/{metricId}/methods/{methodId}.json")
+    public void deleteBackendMetricMethod(
+        @PathParam("backendId") int backendId,
+        @PathParam("metricId") int metricId,
+        @PathParam("methodId") int methodId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/admin/api/services/{serviceId}/backend_usages.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getBackendUsages(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+    
+    @POST
+    @Path("/admin/api/services/{serviceId}/backend_usages.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createBackendUsage(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("backendId") int backendId,
+        @FormParam("path") String path
+    );
+
+    @GET
+    @Path("/admin/api/services/{serviceId}/backend_usages/{backendUsageId}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getBackendUsage(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("backendUsageId") int backendUsageId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/admin/api/services/{serviceId}/backend_usages/{backendUsageId}.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateBackendUsage(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("backendUsageId") int backendUsageId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("path") String path
+    );
+
+    @DELETE
+    @Path("/admin/api/services/{serviceId}/backend_usages/{backendUsageId}.json")
+    public void deleteBackendUsage(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("backendUsageId") int backendUsageId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/features.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getAccountFeatures(
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/features.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createAccountFeature(
+        @FormParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("system_name") String systemName
+    );
+
+    @GET
+    @Path("/features.xml/{featureId}")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getAccountFeature(
+        @PathParam("featureId") int featureId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @DELETE
+    @Path("/features.xml/{featureId}")
+    public void deleteAccountFeature(
+        @PathParam("featureId") int featureId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/fields_definitions.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getFieldDefinitions(
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/fields_definitions.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createFieldDefinition(
+        @FormParam("access_token") String accessToken,
+        @FormParam("target") FieldTarget target,
+        @FormParam("name") String name,
+        @FormParam("label") String label,
+        @FormParam("required") Boolean required,
+        @FormParam("hidden") Boolean hidden,
+        @FormParam("read_only") Boolean readOnly,
+        @FormParam("choices") List<String> choices
+    );
+
+    @GET
+    @Path("/fields_definitions/{fieldDefinitionId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getFieldDefinition(
+        @PathParam("fieldDefinitionId") String fieldDefinitionId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/fields_definitions/{fieldDefinitionId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateFieldDefinition(
+        @PathParam("fieldDefinitionId") String fieldDefinitionId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("target") FieldTarget target,
+        @FormParam("label") String label,
+        @FormParam("required") Boolean required,
+        @FormParam("position") Integer position,
+        @FormParam("hidden") Boolean hidden,
+        @FormParam("read_only") Boolean readOnly,
+        @FormParam("choices") List<String> choices
+    );
+
+    @GET
+    @Path("/objects/status.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getObjectStatus(
+        @QueryParam("access_token") String accessToken,
+        @QueryParam("object_type") ObjectType objectType,
+        @QueryParam("object_id") String objectId
+    );
+
+    @GET
+    @Path("/provider.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getProvider(
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/provider.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateProvider(
+        @FormParam("access_token") String accessToken,
+        @FormParam("from_email") String fromEmail,
+        @FormParam("support_email") String supportEmail,
+        @FormParam("finance_support_email") String financeSupportEmail,
+        @FormParam("site_access_code") String siteAccessCode
+    );
+
+    @GET
+    @Path("/service_plans.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServicePlans(
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/service_plans/{servicePlanId}/features.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServicePlanFeatures(
+        @PathParam("servicePlanId") int servicePlanId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/service_plans/{servicePlanId}/features.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createServicePlanFeature(
+        @PathParam("servicePlanId") int servicePlanId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("feature_id") int featureId
+    );
+
+    @DELETE
+    @Path("/service_plans/{servicePlanId}/features/{featureId}.xml")
+    public void deleteServicePlanFeature(
+        @PathParam("servicePlanId") int servicePlanId,
+        @PathParam("featureId") int featureId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServices(
+        @QueryParam("access_token") String accessToken,
+        @QueryParam("page") int page,
+        @QueryParam("per_page") int perPage       
+    );
+
+    @POST
+    @Path("/services.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createService(
+        @FormParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("description") String description,
+        @FormParam("deployment_option") DeploymentOption deploymentOption,
+        @FormParam("backend_version") String authenticationMode,
+        @FormParam("system_name") String system_name
+    );
+
+    @GET
+    @Path("/services/{serviceId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getService(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateService(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("description") String description,
+        @FormParam("deployment_option") DeploymentOption deploymentOption,
+        @FormParam("backend_version") String authenticationMode,
+        @FormParam("system_name") String system_name
+    );
+
+    @DELETE
+    @Path("/services/{serviceId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public void deleteService(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{serviceId}/service_plans.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServicePlans(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/services/{serviceId}/service_plans.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createServicePlan(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("approval_required") Boolean approvalRequired,
+        @FormParam("system_name") String systenName,
+        @FormParam("state_event") StateEvent stateEvent
+    );
+
+    @GET
+    @Path("/services/{serviceId}/service_plans/{servicePlanId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServicePlan(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("servicePlanId") int servicePlanId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/service_plans/{servicePlanId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServicePlan(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("servicePlanId") int servicePlanId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("approval_required") Boolean approvalRequired,
+        @FormParam("state_event") StateEvent stateEvent
+    );
+
+    @GET
+    @Path("/services/{serviceId}/service_plans/{servicePlanId}.xml")
+    public void deleteServicePlan(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("servicePlanId") int servicePlanId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/service_plans/{servicePlanId}/default.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void defaultServicePlan(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("servicePlanId") int servicePlanId,
+        @FormParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{service_id}/features.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceFeatures(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/services/{service_id}/features.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createServiceFeature(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("system_name") String systemName,
+        @FormParam("description") String description,
+        @FormParam("scope") FeatureScope featureScope
+    );
+
+    @GET
+    @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceFeature(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("serviceFeatureId") int serviceFeatureId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceFeature(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("serviceFeatureId") int serviceFeatureId,
+        @QueryParam("access_token") String accessToken,
+        @FormParam("name") String name,
+        @FormParam("description") String description
+    );
+    
+    @DELETE
+    @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
+    public void deleteServiceFeature(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("serviceFeatureId") int serviceFeatureId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{serviceId}/metrics.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceMetrics(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/services/{serviceId}/metrics.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createServiceMetric(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("system_name") String systemName,
+        @FormParam("friendly_name") String friendlyName,
+        @FormParam("unit") String unit,
+        @FormParam("description") String description       
+    );
+
+    @GET
+    @Path("/services/{serviceId}/metrics/{metricId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceMetric(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/metrics/{metricId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceMetric(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("friendly_name") String friendlyName,
+        @FormParam("unit") String unit,
+        @FormParam("description") String description       
+    );
+
+    @DELETE
+    @Path("/services/{serviceId}/metrics/{metricId}.xml")
+    public void deleteServiceMetric(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{serviceId}/metrics/{metricId}/methods.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceMetricMethods(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/services/{serviceId}/metrics/{metricId}/methods.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createServiceMetricMethod(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("friendly_name") String friendlyName,
+        @FormParam("system_name") String systemName,
+        @FormParam("unit") String unit,
+        @FormParam("description") String description       
+    );
+
+    @GET
+    @Path("/services/{serviceId}/metrics/{metricId}/methods/{methodId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceMetricMethod(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @PathParam("methodId") int methodId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/metrics/{metricId}/methods/{methodId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceMetricMethod(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @PathParam("methodId") int methodId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("friendly_name") String friendlyName,
+        @FormParam("unit") String unit,
+        @FormParam("description") String description       
+    );
+
+    @DELETE
+    @Path("/services/{serviceId}/metrics/{metricId}/methods/{methodId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public void deleteServiceMetricMethod(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("metricId") int metricId,
+        @PathParam("methodId") int methodId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/account/proxy_configs/{environment}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getProxyConfig(
+        @PathParam("environment") Environment environment,
+        @QueryParam("access_token") String accessToken,
+        @QueryParam("host") String host,
+        @QueryParam("version") String version
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceProxy(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PATCH
+    @Path("/services/{serviceId}/proxy.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceProxy(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("endpoint") String endpoint,
+        @FormParam("api_backend") String apiBackend,
+        @FormParam("credentials_location") CredentialsLocation credentialsLocation,
+        @FormParam("auth_app_key") String authAppKey,
+        @FormParam("auth_app_id") String authAppId,
+        @FormParam("auth_user_key") String authUserKey,
+        @FormParam("error_auth_failed") String errorAuthFailed,
+        @FormParam("error_status_auth_failed") Integer errorStatusAuthFailed,
+        @FormParam("error_headers_auth_failed") String errorHeadersAuthFailed,
+        @FormParam("error_auth_missing") String errorAuthMissing,
+        @FormParam("error_status_auth_missing") Integer errorStatusAuthMissing,
+        @FormParam("error_headers_auth_missing") String errorHeadersAuthMissing,
+        @FormParam("error_no_match") String errorNoMatch,
+        @FormParam("error_status_no_match") String errorStatusNoMatch,
+        @FormParam("error_status_limits_exceeded") Integer errorStatusLimitsExceeded,
+        @FormParam("error_headers_limits_exceeded") String errorHeadersLimitsExceeded,
+        @FormParam("error_limits_exceeded") String errorLimitsExceeded,
+        @FormParam("oidc_issuer_endpoint") String oidcIssuerEndpoint,
+        @FormParam("oidc_issuer_type") String oidcIssuerType,
+        @FormParam("sandbox_endpoint") String sandboxEndpoint,
+        @FormParam("jwt_claim_with_client_id") String jwtClaimWithCliendId,
+        @FormParam("jwt_claim_with_client_id_type") ClientIdType jwtClaimWithClientIdType
+    );
+
+    @POST
+    @Path("/services/{serviceId}/proxy/deploy.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void deployServiceProxy(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/mapping_rules.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceProxyMappingRules(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/services/{serviceId}/proxy/mapping_rules.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createServiceProxyMappingRule(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("http_method") String httpMethod,
+        @FormParam("pattern") String pattern,
+        @FormParam("delta") int delta,
+        @FormParam("metric_id") int metricId,
+        @FormParam("position") Integer position,
+        @FormParam("last") Boolean last
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/mapping_rules/{mappingRuleId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceProxyMappingRule(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("mappingRuleId") int mappingRuleId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @DELETE
+    @Path("/services/{serviceId}/proxy/mapping_rules/{mappingRuleId}.xml")
+    public void deleteServiceProxyMappingRule(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("mappingRuleId") int mappingRuleId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/proxy/mapping_rules/{mappingRuleId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceProxyMappingRule(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("mappingRuleId") int mappingRuleId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("http_method") String httpMethod,
+        @FormParam("pattern") String pattern,
+        @FormParam("delta") int delta,
+        @FormParam("metric_id") int metricId,
+        @FormParam("position") Integer position,
+        @FormParam("last") Boolean last
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/oidc_configuration.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getServiceProxyOidc(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/proxy/oidc_configuration.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceProxyOidc(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("standard_flow_enabled") Boolean standardFlowEnabled,
+        @FormParam("implicit_flow_enabled") Boolean implicitFlowEnabled,
+        @FormParam("service_accounts_enabed") Boolean serviceAccountEnabled,
+        @FormParam("direct_access_grants_enabled") Boolean directAccessGrantsEnabled
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/configs/{environment}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getServiceProxyConfigs(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("environment") Environment environment,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/configs/{environment}/latest.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getServiceProxyConfigLatest(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("environment") Environment environment,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/configs/{environment}/{version}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getServiceProxyConfigVersion(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("environment") Environment environment,
+        @PathParam("version") String version,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @POST
+    @Path("/services/{serviceId}/proxy/configs/{environment}/{version}/promote.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void promoteServiceProxyConfigVersion(
+        @PathParam("serviceId") int serviceId,
+        @PathParam("environment") Environment environment,
+        @PathParam("version") String version,
+        @FormParam("access_token") String accessToken,
+        @FormParam("to") Environment toEnvironment
+    );
+
+    @GET
+    @Path("/services/{serviceId}/proxy/policies.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getServiceProxyPolicies(
+        @PathParam("serviceId") int serviceId,
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/services/{serviceId}/proxy/policies.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateServiceProxyPolicies(
+        @PathParam("serviceId") int serviceId,
+        @FormParam("access_token") String accessToken,
+        @FormParam("policies_config") String policiesConfig
+    );
+
+    @GET
+    @Path("/settings.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getSettings(
+        @QueryParam("access_token") String accessToken
+    );
+
+    @PUT
+    @Path("/settings.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateSettings(
+        @FormParam("access_token") String accessToken,
+        @FormParam("useraccountarea_enabled") Boolean userAccountAreaEnabled,
+        @FormParam("hide_service") Boolean hideService,
+        @FormParam("signups_enabled") Boolean signupEnabled,
+        @FormParam("account_approval_required") Boolean accountApprovalRequired,
+        @FormParam("strong_passwords_enabled") Boolean strongPasswordsEnabled,
+        @FormParam("public_search") Boolean publicSearch,
+        @FormParam("account_plans_ui_visible") Boolean accountPlansUiVisible,
+        @FormParam("change_account_plan_permission") Boolean changeAccountPlanPermission,
+        @FormParam("change_service_plan_permission") String changeServicePlanPermission
+    );
+
+    @PUT
+    @Path("/webhooks.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateWebhooks(
+        @FormParam("access_token") String accessToken,
+        @FormParam("url") String url,
+        @FormParam("active") Boolean active,
+        @FormParam("provider_actions") Boolean providerActions,
+        @FormParam("account_created_on") Boolean accountCreatedOn,
+        @FormParam("account_updated_on") Boolean accountUpdatedOn,
+        @FormParam("account_deleted_on") Boolean accountDeletedOn,
+        @FormParam("user_created_on") Boolean userCreatedOn,
+        @FormParam("user_updated_on") Boolean userUpdatedOn,
+        @FormParam("user_deleted_on") Boolean userDeletedOn,
+        @FormParam("application_created_on") Boolean applicationCreatedOn,
+        @FormParam("application_updated_on") Boolean applicationUpdatedOn,
+        @FormParam("application_deleted_on") Boolean applicationDeletedOn,
+        @FormParam("account_plan_changed_on") Boolean accountPlanChangedOn,
+        @FormParam("application_plan_changed_on") Boolean applicationPlanChangedOn,
+        @FormParam("application_user_key_updated_on") Boolean applicationUserKeyUpdatedOn,
+        @FormParam("application_key_created_on") Boolean applicationKeyCreatedOn,
+        @FormParam("application_key_deleted_on") Boolean applicationKeyDeletedOn,
+        @FormParam("application_suspended_on") Boolean applicationSuspendedOn,
+        @FormParam("application_key_updated_on") Boolean applicationKeyUpdatedOn
+    );
+
+    @GET
+    @Path("/webhooks/failures.xml")
+    @Produces(MediaType.APPLICATION_XML) 
+    public String getWebhooksFailures(
+        @QueryParam("access_token") String accessToken
+    );
+
+    @DELETE
+    @Path("/webhooks/failures.xml")
+    public void deleteWebhooksFailures(
+        @QueryParam("access_token") String accessToken
     );
 }

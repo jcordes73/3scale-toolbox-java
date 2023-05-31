@@ -7,8 +7,17 @@ import picocli.CommandLine.ParameterException;
 
 
 @Command(name="service", mixinStandardHelpOptions = true, 
-         subcommands = {ServiceApplicationPlanCommand.class,
-                        ServiceApplicationCommand.class
+         subcommands = {ServicesListCommand.class,
+                        ServiceGetCommand.class,
+                        ServiceCreateCommand.class,
+                        ServiceUpdateCommand.class,
+                        ServiceDeleteCommand.class,
+                        ServicePlansCommand.class,
+                        ServiceApplicationPlanCommand.class,
+                        ServiceApplicationCommand.class,
+                        ServiceFeaturesCommand.class,
+                        ServiceMetricsCommand.class,
+                        ServiceProxyCommand.class
                        }, 
         synopsisSubcommandLabel = "COMMAND")
 public class ServiceCommand implements Runnable {

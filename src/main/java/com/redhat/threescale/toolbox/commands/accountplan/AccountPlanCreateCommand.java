@@ -33,7 +33,7 @@ public class AccountPlanCreateCommand implements Runnable {
     @Option(names = {"--system-name",}, description = "System name")
     public String systemName;
 
-    @Option(names = {"--state-event",}, description = "State event")
+    @Option(names = {"--state-event",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
     
     @Override
