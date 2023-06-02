@@ -23,7 +23,7 @@ public class ServiceMetricsListCommand implements Runnable {
     @Inject
     @RestClient
     AccountManagementService accountManagementService;
-    
+
     @ConfigProperty(name="access_token")
     private String accessToken;
     

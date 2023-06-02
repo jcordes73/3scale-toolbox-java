@@ -20,7 +20,8 @@ import picocli.CommandLine.ParameterException;
                         ApplicationSuspendCommand.class,
                         ApplicationDeleteCommand.class,
                         ApplicationKeyCommand.class,
-                        ApplicationReferrerFilterCommand.class
+                        ApplicationReferrerFilterCommand.class,
+                        ApplicationAnalyticsCommand.class
                     }, 
         synopsisSubcommandLabel = "COMMAND")
 public class ApplicationCommand implements Runnable {
