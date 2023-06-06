@@ -1,14 +1,12 @@
 package com.redhat.threescale.toolbox.commands.account;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import org.jboss.logging.Logger;
+
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
@@ -17,11 +15,7 @@ public class AccountUserCreateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(AccountUserCreateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
     public int accountId;
@@ -39,7 +33,7 @@ public class AccountUserCreateCommand implements Runnable {
     public void run() {
 
         try {
-            accountManagementService.createUser(accountId, accessToken, userName, email, password);
+            accountManagementServiceFactory.getAccountManagementService().createAccountUser(accountId, userName, email, password);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.account;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -16,12 +14,8 @@ public class AccountSetCreditCardCommand implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(AccountSetCreditCardCommand.class);
     
-    @ConfigProperty(name="access_token")
-    private String accessToken;
-    
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
     public int accountId;
@@ -65,7 +59,7 @@ public class AccountSetCreditCardCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.accountSetCreditCard(accountId, accessToken, creditCardToken, creditCardAuthorizeNetPaymentProfileToken, creditCardExpirationYear, creditCardExpirationMonth, billingAddressName, billingAddressAddress, billingAddressCity, billingAddressCountry, billingAddressState, billingAddressPhone, billingAddressZip, creditCardPartialNumber);
+            accountManagementServiceFactory.getAccountManagementService().accountSetCreditCard(accountId, creditCardToken, creditCardAuthorizeNetPaymentProfileToken, creditCardExpirationYear, creditCardExpirationMonth, billingAddressName, billingAddressAddress, billingAddressCity, billingAddressCountry, billingAddressState, billingAddressPhone, billingAddressZip, creditCardPartialNumber);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

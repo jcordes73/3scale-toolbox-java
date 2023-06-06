@@ -1,15 +1,13 @@
 package com.redhat.threescale.toolbox.commands.authentication;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import org.jboss.logging.Logger;
+
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
+import picocli.CommandLine.Parameters;
 
 
 @Command(name="update", mixinStandardHelpOptions = true)
@@ -18,11 +16,7 @@ public class AuthenticationDeveloperPortalProviderUpdateCommand implements Runna
     private static final Logger LOG = Logger.getLogger(AuthenticationDeveloperPortalProviderUpdateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Authentication Provider ID", arity = "1")
     public int authenticationProviderId;
@@ -48,7 +42,7 @@ public class AuthenticationDeveloperPortalProviderUpdateCommand implements Runna
     @Override
     public void run() {
         try {
-            accountManagementService.updateDeveloperPortalAuthenticationProvider(authenticationProviderId, accessToken, clientId, clientSecret, site, published, skipSslCertificateVerification, automaticallyApproveAccounts);
+            accountManagementServiceFactory.getAccountManagementService().updateDeveloperPortalAuthenticationProvider(authenticationProviderId, clientId, clientSecret, site, published, skipSslCertificateVerification, automaticallyApproveAccounts);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

@@ -1,16 +1,14 @@
 package com.redhat.threescale.toolbox.commands.invoice;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.BillingService;
+import com.redhat.threescale.toolbox.rest.client.service.BillingServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 @Command(name="payment-transactions", mixinStandardHelpOptions = true)
 public class InvoicePaymentTransactionsCommand implements Runnable {
@@ -21,11 +19,7 @@ public class InvoicePaymentTransactionsCommand implements Runnable {
     CommandSpec spec;
         
     @Inject
-    @RestClient
-    BillingService billingService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    BillingServiceFactory billingServiceFactory;
 
     @Parameters(index = "0", description = "Invoice ID", arity = "1")
     private int invoiceId;
@@ -33,7 +27,7 @@ public class InvoicePaymentTransactionsCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = billingService.getInvoicePaymentTransactions(invoiceId, accessToken);
+            String response = billingServiceFactory.getBillingService().getInvoicePaymentTransactions(invoiceId);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

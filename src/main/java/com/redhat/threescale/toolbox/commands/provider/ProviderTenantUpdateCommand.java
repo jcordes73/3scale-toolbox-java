@@ -1,10 +1,9 @@
 package com.redhat.threescale.toolbox.commands.provider;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.MasterService;
+import com.redhat.threescale.toolbox.rest.client.service.MasterServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -17,11 +16,7 @@ public class ProviderTenantUpdateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(ProviderTenantUpdateCommand.class);
 
     @Inject
-    @RestClient
-    MasterService masterService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    MasterServiceFactory masterServiceFactory;
 
     @Parameters(index="0", description="Tenant ID", arity="1")
     public int tenantId;
@@ -44,7 +39,7 @@ public class ProviderTenantUpdateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            masterService.updateTenant(tenantId, accessToken, fromEmail, supportEmail, financeSupportEmail, siteAccessCode, stateEvent);
+            masterServiceFactory.getMasterService().updateTenant(tenantId, fromEmail, supportEmail, financeSupportEmail, siteAccessCode, stateEvent);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

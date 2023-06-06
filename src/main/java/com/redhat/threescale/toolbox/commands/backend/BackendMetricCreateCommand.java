@@ -1,15 +1,13 @@
 package com.redhat.threescale.toolbox.commands.backend;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import org.jboss.logging.Logger;
+
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
+import picocli.CommandLine.Parameters;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
@@ -18,11 +16,7 @@ public class BackendMetricCreateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(BackendMetricCreateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Backend ID", arity = "1")
     public int backendId;
@@ -42,7 +36,7 @@ public class BackendMetricCreateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.createBackendMetric(accessToken, accessToken, friendlyName, systemName, unit, description);
+            accountManagementServiceFactory.getAccountManagementService().createBackendMetric(backendId, friendlyName, systemName, unit, description);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

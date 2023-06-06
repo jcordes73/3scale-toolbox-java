@@ -1,18 +1,17 @@
 package com.redhat.threescale.toolbox.commands.fielddefinitions;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.jboss.logging.Logger;
+
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
 
 
 @Command(name="update", mixinStandardHelpOptions = true)
@@ -21,11 +20,7 @@ public class FieldDefinitionUpdateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(FieldDefinitionUpdateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Field Definition ID", arity = "1")
     public String fieldDefinitionId;
@@ -61,7 +56,7 @@ public class FieldDefinitionUpdateCommand implements Runnable {
             if (choices != null)
                 choicesList = Arrays.asList(choices.split(","));
 
-            accountManagementService.updateFieldDefinition(fieldDefinitionId, accessToken, fieldTarget, label, required, position, hidden, readOnly, choicesList);
+            accountManagementServiceFactory.getAccountManagementService().updateFieldDefinition(fieldDefinitionId, fieldTarget, label, required, position, hidden, readOnly, choicesList);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

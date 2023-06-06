@@ -1,17 +1,16 @@
 package com.redhat.threescale.toolbox.commands.account;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
 public class AccountUserListCommand implements Runnable {
@@ -22,11 +21,7 @@ public class AccountUserListCommand implements Runnable {
     CommandSpec spec;
     
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
     public int accountId;
@@ -40,7 +35,7 @@ public class AccountUserListCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = accountManagementService.getAccountUsers(accountId, accessToken, state, role);
+            String response = accountManagementServiceFactory.getAccountManagementService().getAccountUsers(accountId, state, role);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.rest.client.service;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/stats")
 @RegisterRestClient(configKey = "threescale")
@@ -198,13 +200,27 @@ public interface AnalyticsService {
         }
     }
 
+    @ClientExceptionMapper
+    static RuntimeException toException(Response response) {
+        if (response.getStatus() == 401) {
+            return new RuntimeException("Unauthorized");
+        } else if (response.getStatus() == 403) {
+            return new RuntimeException("Access denied");
+        } else if (response.getStatus() == 404) {
+            return new RuntimeException("Entry not found");
+        } else if (response.getStatus() == 500) {
+            return new RuntimeException("The remote service responded with HTTP 500");
+        }
+        
+        return null;
+    }
+
     @GET
     @Path("/applications/{applicationId}/usage.{format}")
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationTraffic(
         @PathParam("applicationId") int applicationId,
         @PathParam("format") Format format,
-        @QueryParam("access_token") String accessToken,
         @QueryParam("metric_name") String metricName,
         @QueryParam("since") String since,
         @QueryParam("period") Period period,

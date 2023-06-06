@@ -1,15 +1,13 @@
 package com.redhat.threescale.toolbox.commands.policy;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.PolicyRegistryService;
+import com.redhat.threescale.toolbox.rest.client.service.PolicyRegistryServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Spec;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Spec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
 public class PoliciesListCommand implements Runnable {
@@ -20,16 +18,12 @@ public class PoliciesListCommand implements Runnable {
     CommandSpec spec;
     
     @Inject
-    @RestClient
-    PolicyRegistryService policyRegistryService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    PolicyRegistryServiceFactory policyRegistryServiceFactory;
 
     @Override
     public void run() {
         try {
-            String response = policyRegistryService.getPolicies(accessToken);
+            String response = policyRegistryServiceFactory.getPolicyRegistryService().getPolicies();
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

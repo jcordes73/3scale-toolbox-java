@@ -1,16 +1,15 @@
 package com.redhat.threescale.toolbox.commands.objects;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 @Command(name="status", mixinStandardHelpOptions = true)
 public class ObjectStatusCommand implements Runnable {
@@ -21,11 +20,7 @@ public class ObjectStatusCommand implements Runnable {
     CommandSpec spec;
     
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Object Type. Valid values: ${COMPLETION-CANDIDATES}", arity = "1")
     public AccountManagementService.ObjectType objectType;
@@ -36,7 +31,7 @@ public class ObjectStatusCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = accountManagementService.getObjectStatus(accessToken, objectType, objectId);
+            String response = accountManagementServiceFactory.getAccountManagementService().getObjectStatus(objectType, objectId);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e){

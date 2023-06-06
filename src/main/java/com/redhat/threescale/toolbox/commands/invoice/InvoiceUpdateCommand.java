@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.invoice;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.BillingService;
+import com.redhat.threescale.toolbox.rest.client.service.BillingServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -17,11 +15,7 @@ public class InvoiceUpdateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(InvoiceUpdateCommand.class);
 
     @Inject
-    @RestClient
-    BillingService billingService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    BillingServiceFactory billingServiceFactory;
 
     @Parameters(index = "0", description = "Invoice ID", arity = "1")
     private int invoiceId;
@@ -35,7 +29,7 @@ public class InvoiceUpdateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            billingService.updateInvoice(invoiceId, accessToken, period, friendlyId);
+            billingServiceFactory.getBillingService().updateInvoice(invoiceId, period, friendlyId);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

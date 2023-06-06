@@ -1,13 +1,12 @@
 package com.redhat.threescale.toolbox.commands.applicationplans;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name="create", mixinStandardHelpOptions = true)
@@ -16,11 +15,7 @@ public class ApplicationPlanMetricsPricingRuleCreateCommand implements Runnable 
     private static final Logger LOG = Logger.getLogger(ApplicationPlanMetricsPricingRuleCreateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Application Plan ID", arity = "1")
     public int applicationPlanId;
@@ -28,19 +23,20 @@ public class ApplicationPlanMetricsPricingRuleCreateCommand implements Runnable 
     @Parameters(index = "1", description = "Metrics ID", arity = "1")
     public int metricId;
 
-    @Parameters(index = "2", description = "From (min) hit", arity = "1")
-    public int min;
+    @Option(names = {"--min"}, description = "From (min) hit", arity = "1", defaultValue = Option.NULL_VALUE)
+    public Integer min;
 
-    @Parameters(index = "3", description = "To (max) hit", arity = "1")
-    public int max;
+    @Option(names = {"--max"}, description = "To (max) hit", arity = "1", defaultValue = Option.NULL_VALUE)
+    public Integer max;
 
-    @Parameters(index = "4", description = "Cost per unit", arity = "1")
-    public float costPerUnit;
+    @Option(names = {"--cost-per-unit"}, description = "Cost per unit", arity = "1", defaultValue = Option.NULL_VALUE)
+    public Float costPerUnit;
+
 
     @Override
     public void run() {
         try {
-            accountManagementService.createApplicationPlanMetricPricingRule(applicationPlanId, metricId, accessToken, min, max, costPerUnit);
+            accountManagementServiceFactory.getAccountManagementService().createApplicationPlanMetricPricingRule(applicationPlanId, metricId, min, max, costPerUnit);
          } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

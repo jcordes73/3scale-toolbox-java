@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.account;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -16,11 +14,7 @@ public class AccountServiceContractsDeleteCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(AccountServiceContractsDeleteCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
     public int accountId;
@@ -31,7 +25,7 @@ public class AccountServiceContractsDeleteCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.deleteAccountServiceContract(accountId, serviceContractId, accessToken);
+            accountManagementServiceFactory.getAccountManagementService().deleteAccountServiceContract(accountId, serviceContractId);
          } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.applications;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -17,11 +15,7 @@ public class ApplicationUpdateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(ApplicationUpdateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
     private int accountId;
@@ -47,7 +41,7 @@ public class ApplicationUpdateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.updateApplication(accountId, applicationId, accessToken, applicationName, description, redirectUrl, firstTrafficAt, firstDailyTrafficAt);
+            accountManagementServiceFactory.getAccountManagementService().updateApplication(accountId, applicationId, applicationName, description, redirectUrl, firstTrafficAt, firstDailyTrafficAt);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

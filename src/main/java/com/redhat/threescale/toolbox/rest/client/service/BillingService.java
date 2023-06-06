@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.rest.client.service;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/api")
 @RegisterRestClient(configKey = "threescale")
@@ -45,13 +47,27 @@ public interface BillingService {
         }
     }
 
+    @ClientExceptionMapper
+    static RuntimeException toException(Response response) {
+        if (response.getStatus() == 401) {
+            return new RuntimeException("Unauthorized");
+        } else if (response.getStatus() == 403) {
+            return new RuntimeException("Access denied");
+        } else if (response.getStatus() == 404) {
+            return new RuntimeException("Entry not found");
+        } else if (response.getStatus() == 500) {
+            return new RuntimeException("The remote service responded with HTTP 500");
+        }
+        
+        return null;
+    }
+
     @GET
     @Path("/accounts/{accountId}/invoices/{invoiceId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getInvoiceByAccount(
         @PathParam("accountId") int accoundId,
-        @PathParam("invoiceId") int invoiceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("invoiceId") int invoiceId
     );
 
     @GET
@@ -59,7 +75,6 @@ public interface BillingService {
     @Produces(MediaType.APPLICATION_XML)
     public String getInvoicesByAccount(
         @PathParam("accountId") int accoundId,
-        @QueryParam("access_token") String accessToken,
         @QueryParam("state") InvoiceState state,
         @QueryParam("month") String month,
         @QueryParam("page") int page,
@@ -70,7 +85,6 @@ public interface BillingService {
     @Path("/invoices.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getInvoices(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("state") InvoiceState state,
         @QueryParam("month") String month,
         @QueryParam("page") int page,
@@ -81,7 +95,6 @@ public interface BillingService {
     @Path("/invoices.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createInvoice(
-        @FormParam("access_token") String accessToken,
         @FormParam("account_id") int accountId,
         @FormParam("period") String period
     );
@@ -90,8 +103,7 @@ public interface BillingService {
     @Path("/invoices/{invoiceId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getInvoice(
-        @PathParam("invoiceId") int invoiceId,
-        @QueryParam("access_token") String access_token
+        @PathParam("invoiceId") int invoiceId
     );
 
     @PUT
@@ -99,7 +111,6 @@ public interface BillingService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateInvoice(
         @PathParam("invoiceId") int invoiceId,
-        @FormParam("access_token") String access_token,
         @FormParam("period") String period,
         @FormParam("friendly_id") String friendlyId
     );
@@ -109,7 +120,6 @@ public interface BillingService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateInvoiceState(
         @PathParam("invoiceId") int invoiceId,
-        @FormParam("access_token") String access_token,
         @FormParam("state") InvoiceState state
     );
     
@@ -117,24 +127,21 @@ public interface BillingService {
     @Path("/invoices/{invoiceId}/charge.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void chargeInvoice(
-        @PathParam("invoiceId") int invoiceId,
-        @FormParam("access_token") String accessToken
+        @PathParam("invoiceId") int invoiceId
     );
 
     @GET
     @Path("/invoices/{invoiceId}/payment_transactions.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getInvoicePaymentTransactions(
-        @PathParam("invoiceId") int invoiceId,
-        @QueryParam("access_token") String access_token
+        @PathParam("invoiceId") int invoiceId
     );
 
     @GET
     @Path("/invoices/{invoiceId}/line_items.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getInvoiceLineItems(
-        @PathParam("invoiceId") int invoiceId,
-        @QueryParam("access_token") String access_token
+        @PathParam("invoiceId") int invoiceId
     );
 
     @PUT
@@ -142,7 +149,6 @@ public interface BillingService {
     @Produces(MediaType.APPLICATION_XML)
     public void createInvoiceLineItem(
         @PathParam("invoiceId") int invoiceId,
-        @FormParam("access_token") String access_token,
         @FormParam("name") String name,
         @FormParam("description") String description,
         @FormParam("quantity") String quantity,

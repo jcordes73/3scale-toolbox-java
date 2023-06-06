@@ -1,17 +1,16 @@
 package com.redhat.threescale.toolbox.commands.invoice;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.BillingService;
+import com.redhat.threescale.toolbox.rest.client.service.BillingServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
 public class InvoiceAccountListCommand implements Runnable {
@@ -22,14 +21,13 @@ public class InvoiceAccountListCommand implements Runnable {
     CommandSpec spec;
         
     @Inject
-    @RestClient
-    BillingService billingService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    BillingServiceFactory billingServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
     private int accountId;
+
+    @Option(names = {"--month",}, description = "Month.")
+    public String month;
 
     @Option(names = {"--state",}, description = "State. Valid values: ${COMPLETION-CANDIDATES}")
     public BillingService.InvoiceState state;
@@ -43,7 +41,7 @@ public class InvoiceAccountListCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = billingService.getInvoicesByAccount(accountId, accessToken, state, accessToken, page, perPage);
+            String response = billingServiceFactory.getBillingService().getInvoicesByAccount(accountId, state, month, page, perPage);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

@@ -1,15 +1,13 @@
 package com.redhat.threescale.toolbox.commands.applications;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import org.jboss.logging.Logger;
+
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
+import picocli.CommandLine.Parameters;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
@@ -18,11 +16,7 @@ public class ApplicationCreateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(ApplicationCreateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "plan_id", arity = "1")
     public int planId;
@@ -53,7 +47,7 @@ public class ApplicationCreateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.createApplication(planId, accessToken, planId, name, description, userKey, applicationId, applicationKey, redirectUrl, firstTrafficAt, firstDailyTrafficAt);
+            accountManagementServiceFactory.getAccountManagementService().createApplication(planId, planId, name, description, userKey, applicationId, applicationKey, redirectUrl, firstTrafficAt, firstDailyTrafficAt);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }       

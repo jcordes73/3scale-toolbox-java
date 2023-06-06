@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.webhooks;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -15,12 +13,8 @@ public class WebhooksUpdateCommand implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(WebhooksUpdateCommand.class);
     
-    @ConfigProperty(name="access_token")
-    private String accessToken;
-    
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Option(names = {"--url",}, description = "URL that will be notified about all the events")
     public String url;
@@ -82,7 +76,7 @@ public class WebhooksUpdateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.updateWebhooks(accessToken, url, active, providerActions, accountCreatedOn, accountUpdatedOn, accountDeletedOn, userCreatedOn, userUpdatedOn, userDeletedOn, applicationCreatedOn, applicationUpdatedOn, applicationDeletedOn, accountPlanChangedOn, applicationPlanChangedOn, applicationUserKeyUpdatedOn, applicationKeyCreatedOn, applicationKeyDeletedOn, applicationSuspendedOn, applicationKeyUpdatedOn);
+            accountManagementServiceFactory.getAccountManagementService().updateWebhooks(url, active, providerActions, accountCreatedOn, accountUpdatedOn, accountDeletedOn, userCreatedOn, userUpdatedOn, userDeletedOn, applicationCreatedOn, applicationUpdatedOn, applicationDeletedOn, accountPlanChangedOn, applicationPlanChangedOn, applicationUserKeyUpdatedOn, applicationKeyCreatedOn, applicationKeyDeletedOn, applicationSuspendedOn, applicationKeyUpdatedOn);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

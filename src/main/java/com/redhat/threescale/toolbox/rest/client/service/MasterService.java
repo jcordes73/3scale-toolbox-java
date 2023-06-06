@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.rest.client.service;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/master/api")
 @RegisterRestClient(configKey = "threescale")
@@ -26,11 +28,25 @@ public interface MasterService {
         resume
     }
 
+    @ClientExceptionMapper
+    static RuntimeException toException(Response response) {
+        if (response.getStatus() == 401) {
+            return new RuntimeException("Unauthorized");
+        } else if (response.getStatus() == 403) {
+            return new RuntimeException("Access denied");
+        } else if (response.getStatus() == 404) {
+            return new RuntimeException("Entry not found");
+        } else if (response.getStatus() == 500) {
+            return new RuntimeException("The remote service responded with HTTP 500");
+        }
+        
+        return null;
+    }
+
     @POST
     @Path("/providers.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createTenant(
-        @FormParam("access_token") String accessToken,
         @FormParam("org_name") String orgName,
         @FormParam("username") String userName,
         @FormParam("email") String email,
@@ -41,8 +57,7 @@ public interface MasterService {
     @Path("/providers/{tenantId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getTenant(
-        @PathParam("tenantId") int tenantId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("tenantId") int tenantId
     );
 
     @PUT
@@ -50,7 +65,6 @@ public interface MasterService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateTenant(
         @FormParam("tenantId") int tenantId,
-        @FormParam("access_token") String accessToken,
         @FormParam("from_email") String fromEmail,
         @FormParam("support_email") String supportEmail,
         @FormParam("finance_support_email") String financeSupportEmail,
@@ -61,8 +75,7 @@ public interface MasterService {
     @DELETE
     @Path("/providers/{tenantId}.xml")
     public void deleteTenant(
-        @PathParam("tenantId") int tenantId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("tenantId") int tenantId
     );
 
     @POST
@@ -70,7 +83,6 @@ public interface MasterService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void triggerTenantBillingAll(
         @PathParam("tenantId") int tenantId,
-        @FormParam("access_token") String accessToken,
         @FormParam("date") String date
     );
 
@@ -80,7 +92,6 @@ public interface MasterService {
     public void triggerTenantBillingAccount(
         @PathParam("tenantId") int tenantId,
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("date") String date
     );
 }

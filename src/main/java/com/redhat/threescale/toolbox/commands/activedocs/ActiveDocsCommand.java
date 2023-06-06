@@ -10,6 +10,7 @@ import picocli.CommandLine.ParameterException;
          subcommands = {ActiveDocsListCommand.class,
                         ActiveDocsGetCommand.class,
                         ActiveDocsCreateCommand.class,
+                        ActiveDocsUpdateCommand.class,
                         ActiveDocsDeleteCommand.class
                        }, 
         synopsisSubcommandLabel = "COMMAND")

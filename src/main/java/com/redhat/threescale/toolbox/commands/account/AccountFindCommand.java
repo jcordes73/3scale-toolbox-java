@@ -1,16 +1,14 @@
 package com.redhat.threescale.toolbox.commands.account;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 @Command(name="find", mixinStandardHelpOptions = true)
 public class AccountFindCommand implements Runnable {
@@ -21,11 +19,7 @@ public class AccountFindCommand implements Runnable {
     CommandSpec spec;
     
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Option(names = {"--username"}, description = "username", arity = "0..1")
     private String userName;
@@ -39,7 +33,7 @@ public class AccountFindCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = accountManagementService.findAccount(accessToken, userName, email, userId);
+            String response = accountManagementServiceFactory.getAccountManagementService().findAccount(userName, email, userId);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

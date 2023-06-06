@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -16,6 +17,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/admin/api")
 @RegisterRestClient(configKey = "threescale")
@@ -87,11 +89,28 @@ public interface AccountManagementService {
         liquid
     }
 
+    @ClientExceptionMapper
+    static RuntimeException toException(Response response) {
+
+        if (response.getStatus() == 401) {
+            return new RuntimeException("Unauthorized");
+        } else if (response.getStatus() == 403) {
+            return new RuntimeException("Access denied");
+        } else if (response.getStatus() == 404) {
+            return new RuntimeException("Entry not found");
+        } else if (response.getStatus() == 422) {
+            return new RuntimeException("Malformed request for " + response.getLocation().toString() + ". Response: " + response.getEntity().toString());
+        } else if (response.getStatus() == 500) {
+            return new RuntimeException("The remote service responded with HTTP 500");
+        }
+
+        return null;
+    }
+
     @POST
     @Path("/signup.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createAccount(
-        @FormParam("access_token") String accessToken,
         @FormParam("org_name") String orgName,
         @FormParam("username") String userName,
         @FormParam("email") String email,
@@ -105,7 +124,6 @@ public interface AccountManagementService {
     @Path("/accounts.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccounts(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("state") State state,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage
@@ -115,15 +133,13 @@ public interface AccountManagementService {
     @Path("/accounts/{accountId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccount(
-        @PathParam("accountId") int accountId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @GET
     @Path("/accounts/find.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String findAccount(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("username") String userName,
         @QueryParam("email") String email,
         @QueryParam("user_id") String userId
@@ -134,7 +150,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateAccount(
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("org_name") String orgName,
         @FormParam("monthly_billing_enabled") Boolean monthlyBillingEnabled,
         @FormParam("monthly_charging_enabled") Boolean monthlyChargingEnabled,
@@ -145,16 +160,14 @@ public interface AccountManagementService {
     @Path("/accounts/{accountId}.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void deleteAccount(
-        @PathParam("accountId") int accountId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @GET
     @Path("/accounts/{accountId}/applications.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getApplications(
-        @PathParam("accountId") int accountId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @GET
@@ -162,8 +175,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getApplication(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @POST
@@ -171,7 +183,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createApplication(
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("plan_id") int planId,
         @FormParam("name") String name,
         @FormParam("description") String description,
@@ -190,7 +201,6 @@ public interface AccountManagementService {
     public void updateApplication(
         @PathParam("accountId") int accountId,
         @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("description") String description,
         @FormParam("redirect_url") String redirectUrl,
@@ -203,8 +213,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void acceptApplication(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @PUT
@@ -213,7 +222,6 @@ public interface AccountManagementService {
     public void changeApplicationPlan(
         @PathParam("accountId") int accountId,
         @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken,
         @FormParam("plan_id") int planId
     );
 
@@ -222,8 +230,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void customizeApplicationPlan(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @PUT
@@ -231,8 +238,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void decustomizeApplicationPlan(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @PUT
@@ -240,8 +246,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void resumeApplication(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @PUT
@@ -249,8 +254,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void suspendApplication(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @DELETE
@@ -258,8 +262,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void deleteApplication(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @GET
@@ -267,8 +270,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationKeys(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @POST
@@ -277,7 +279,6 @@ public interface AccountManagementService {
     public void createApplicationKey(
         @PathParam("accountId") int accountId,
         @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken,
         @FormParam("key") String key
     );
 
@@ -286,8 +287,7 @@ public interface AccountManagementService {
     public void deleteApplicationKey(
         @PathParam("accountId") int accountId,
         @PathParam("applicationId") int applicationId,
-        @PathParam("key") String key,
-        @QueryParam("access_token") String accessToken
+        @PathParam("key") String key
     );
 
     @GET
@@ -295,8 +295,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationReferrerFilters(
         @PathParam("accountId") int accountId,
-        @PathParam("applicationId") int applicationId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationId") int applicationId
     );
 
     @POST
@@ -305,7 +304,6 @@ public interface AccountManagementService {
     public void createApplicationReferrerFilter(
         @PathParam("accountId") int accountId,
         @PathParam("applicationId") int applicationId,
-        @FormParam("access_token") String accessToken,
         @FormParam("referrer_filter") String referrerFilter
     );
 
@@ -314,8 +312,7 @@ public interface AccountManagementService {
     public void deleteApplicationReferrerFilter(
         @PathParam("accountId") int accountId,
         @PathParam("applicationId") int applicationId,
-        @PathParam("referrer_filter") String referrerFilter,
-        @QueryParam("access_token") String accessToken
+        @PathParam("referrer_filter") String referrerFilter
     );
 
     @POST
@@ -323,7 +320,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createAccountMessage(
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("subject") String subject,
         @FormParam("body") String body);
 
@@ -331,32 +327,28 @@ public interface AccountManagementService {
     @Path("/accounts/{accountId}/plan.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccountPlanByAccount(
-        @PathParam("accountId") int accountId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @GET
     @Path("/accounts/{accountId}/service_contracts.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccountServiceContracts(
-        @PathParam("accountId") int accountId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @DELETE
     @Path("/accounts/{accountId}/service_contracts/{serviceContractId}.xml")
     public void deleteAccountServiceContract(
         @PathParam("accountId") int accountId,
-        @PathParam("serviceContractId") int serviceContractId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceContractId") int serviceContractId
     );
 
     @PUT
     @Path("/accounts/{accountId}/approve.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void approveAccount(
-        @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
     
     @PUT
@@ -364,7 +356,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void accountChangePlan(
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("plan_id") int planId
     );
 
@@ -373,7 +364,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void accountSetCreditCard(
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("credit_card_token") String creditCardToken,
         @FormParam("credit_card_authorize_net_payment_profile_token") String creditCardAuthorizeNetPaymentProfileToken,
         @FormParam("credit_card_expiration_year") String creditCardExpirationYear,
@@ -390,23 +380,21 @@ public interface AccountManagementService {
     @DELETE
     @Path("/accounts/{accountId}/credit_card.xml")
     public void accountDeleteCreditCard(
-        @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("accountId") int accountId
+    );
 
     @PUT
     @Path("/accounts/{accountId}/make_pending.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void accountMakePending(
-        @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @PUT
     @Path("/accounts/{accountId}/reject.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void accountReject(
-        @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken
+        @PathParam("accountId") int accountId
     );
 
     @GET
@@ -414,7 +402,6 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getAccountUsers(
         @PathParam("accountId") int accountId,
-        @QueryParam("access_token") String accessToken,
         @QueryParam("state") State state,
         @QueryParam("role") Role role
     );
@@ -422,19 +409,82 @@ public interface AccountManagementService {
     @POST
     @Path("/accounts/{accountId}/users.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public void createUser(
+    public void createAccountUser(
         @PathParam("accountId") int accountId,
-        @FormParam("access_token") String accessToken,
         @FormParam("username") String userName,
         @FormParam("email") String email,
         @FormParam("password") String password);
 
     @GET
+    @Path("/accounts/{accountId}/users/{userId}.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getAccountUser(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @PUT
+    @Path("/accounts/{accountId}/users/{userId}.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void updateAccountUser(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId,
+        @FormParam("username") String userName,
+        @FormParam("email") String email,
+        @FormParam("password") String password);
+
+    @DELETE
+    @Path("/accounts/{accountId}/users/{userId}.xml")
+    public void deleteAccountUser(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @PUT
+    @Path("/accounts/{accountId}/users/{userId}/activate.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void activateAccountUser(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @PUT
+    @Path("/accounts/{accountId}/users/{userId}/admin.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void changeAccountUserRoleToAdmin(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @PUT
+    @Path("/accounts/{accountId}/users/{userId}/member.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void changeAccountUserRoleToMember(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @PUT
+    @Path("/accounts/{accountId}/users/{userId}/suspend.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void suspendAccountUser(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @PUT
+    @Path("/accounts/{accountId}/users/{userId}/unsuspend.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void unsuspendAccountUser(
+        @PathParam("accountId") int accountId,
+        @PathParam("userId") int userId
+    );
+
+    @GET
     @Path("/users/{userId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getUser(
-        @PathParam("userId") int userId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("userId") int userId
     );
 
     @PUT
@@ -442,7 +492,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateUser(
         @PathParam("userId") String userId,
-        @FormParam("access_token") String accessToken,
         @FormParam("username") String userName,
         @FormParam("email") String email,
         @FormParam("password") String password
@@ -451,36 +500,35 @@ public interface AccountManagementService {
     @DELETE
     @Path("/users/{userId}.xml")
     public void deleteUser(
-        @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("userId") int userId
+    );
 
     @PUT
     @Path("/users/{userId}/activate.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void activateUser(
-        @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("userId") int userId
+    );
 
     @PUT
     @Path("/users/{userId}/admin.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void changeUserRoleToAdmin(
-        @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("userId") int userId
+    );
 
     @PUT
     @Path("/users/{userId}/member.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void changeUserRoleToMember(
-        @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("userId") int userId
+    );
 
     @GET
     @Path("/users/{userId}/permissions.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getUserPermissions(
-        @PathParam("userId") int userId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("userId") int userId
     );
 
     @PUT
@@ -488,24 +536,23 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateUserPermissions(
         @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken,
         @FormParam("allowed_service_ids") List<String> allowedServiceIds,
         @FormParam("allowed_sections") List<String> allowedSections
-        );
+    );
 
     @PUT
     @Path("/users/{userId}/suspend.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void suspendUser(
-        @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("userId") int userId
+    );
     
     @PUT
     @Path("/users/{userId}/unsuspend.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void unsuspendUser(
-        @PathParam("userId") int userId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("userId") int userId
+    );
 
     @POST
     @Path("/users/{userId}/access_tokens.json")
@@ -513,7 +560,6 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String createAccessToken(
         @PathParam("userId") String userId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("permission") String permission,
         @FormParam("scopes") List<String> scopes);
@@ -521,15 +567,12 @@ public interface AccountManagementService {
     @GET
     @Path("/account_plans.xml")
     @Produces(MediaType.APPLICATION_XML)
-    public String getAccountPlans(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getAccountPlans();
 
     @POST
     @Path("/account_plans.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createAccountPlan(
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("approval_required") boolean permission,
         @FormParam("system_name") String systemName,
@@ -540,8 +583,7 @@ public interface AccountManagementService {
     @Path("/account_plans/{accountPlanId}/features.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccountPlanFeatures(
-        @PathParam("accountPlanId") int accountPlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountPlanId") int accountPlanId
     );
 
     @POST
@@ -549,23 +591,21 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createAccountPlanFeature(
         @PathParam("accountPlanId") int accountPlanId,
-        @PathParam("accountPlanFeatureId") int accountPlanFeatureId,
-        @FormParam("access_token") String accessToken
+        @PathParam("accountPlanFeatureId") int accountPlanFeatureId
     );
 
     @DELETE
     @Path("/account_plans/{accountPlanId}/features/{accountPlanFeatureId}.xml")
     public void deleteAccountPlanFeature(
         @PathParam("accountPlanId") int accountPlanId,
-        @PathParam("accountPlanFeatureId") int accountPlanFeatureId,
-        @QueryParam("access_token") String accessToken);
+        @PathParam("accountPlanFeatureId") int accountPlanFeatureId
+    );
 
     @GET
     @Path("/account_plans/{accountPlanId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccountPlan(
-        @PathParam("accountPlanId") int accountPlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("accountPlanId") int accountPlanId
     );
 
     @POST
@@ -573,7 +613,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateAccountPlan(
         @PathParam("accountPlanId") int accountPlanId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("approval_requited") boolean permission,
         @FormParam("state_event") String stateEvent
@@ -582,28 +621,25 @@ public interface AccountManagementService {
     @DELETE
     @Path("/account_plans/{accountPlanId}.xml")
     public void deleteAccountPlan(
-        @PathParam("accountPlanId") int accountPlanId,
-        @QueryParam("access_token") String accessToken);
+        @PathParam("accountPlanId") int accountPlanId
+    );
 
     @PUT
     @Path("/account_plans/{accountPlanId}/default.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void accountPlanDefault(
-        @PathParam("accountPlanId") int accountPlanId,
-        @FormParam("access_token") String accessToken);
+        @PathParam("accountPlanId") int accountPlanId
+    );
     
     @GET
     @Path("/active_docs.json")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getActiveDocs(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getActiveDocs();
 
     @POST
     @Path("/active_docs.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createActiveDocs(
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName,
         @FormParam("service_id") Integer serviceId,
@@ -617,7 +653,6 @@ public interface AccountManagementService {
     @Path("/active_docs.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateActiveDocs(
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("service_id") Integer serviceId,
         @FormParam("body") String body,
@@ -630,29 +665,25 @@ public interface AccountManagementService {
     @Path("/active_docs/{activeDocId}.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getActiveDoc(
-        @PathParam("activeDocId") int activeDocId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("activeDocId") int activeDocId
     );
 
     @DELETE
     @Path("/active_docs/{activeDocId}.json")
     public void deleteActiveDoc(
-        @PathParam("activeDocId") int activeDocId,
-        @QueryParam("access_token") String accessToken);
+        @PathParam("activeDocId") int activeDocId
+    );
 
     @GET
     @Path("/application_plans.xml")
     @Produces(MediaType.APPLICATION_XML)
-    public String getApplicationPlans(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getApplicationPlans();
 
     @GET
     @Path("/application_plans/{applicationPlanId}/features.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationPlanFeatures(
-        @PathParam("applicationPlanId") int applicationPlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationPlanId") int applicationPlanId
     );
 
     @POST
@@ -660,7 +691,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createApplicationPlanFeature(
         @PathParam("applicationPlanId") int applicationPlanId,
-        @FormParam("access_token") String accessToken,
         @FormParam("feature_id") int featureId
     );
 
@@ -668,15 +698,14 @@ public interface AccountManagementService {
     @Path("/application_plans/{applicationPlanId}/features/{featureId}.xml")
     public void deleteApplicationPlanFeature(
         @PathParam("applicationPlanId") int applicationPlanId,
-        @PathParam("featureId") int featureId,
-        @QueryParam("access_token") String accessToken);
+        @PathParam("featureId") int featureId
+    );
 
     @GET
     @Path("/application_plans/{applicationPlanId}/limits.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationPlanLimits(
         @PathParam("applicationPlanId") int applicationPlanId,
-        @QueryParam("access_token") String accessToken,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage
     );
@@ -686,8 +715,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationPlanMetricLimits(
         @PathParam("applicationPlanId") int applicationPlanId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @POST
@@ -696,7 +724,6 @@ public interface AccountManagementService {
     public void createApplicationPlanMetricLimit(
         @PathParam("applicationPlanId") int applicationPlanId,
         @PathParam("metricId") int metricId,
-        @FormParam("access_token") String accessToken,
         @FormParam("value") int value,
         @FormParam("period") LimitPeriod period
     );
@@ -707,8 +734,7 @@ public interface AccountManagementService {
     public String getApplicationPlanMetricLimit(
         @PathParam("applicationPlanId") int applicationPlanId,
         @PathParam("metricId") int metricId,
-        @PathParam("limitId") int limitId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("limitId") int limitId
     );
 
     @PUT
@@ -718,7 +744,6 @@ public interface AccountManagementService {
         @PathParam("applicationPlanId") int applicationPlanId,
         @PathParam("metricId") int metricId,
         @PathParam("limitId") int limitId,
-        @FormParam("access_token") String accessToken,
         @FormParam("value") int value,
         @FormParam("period") LimitPeriod period
     );
@@ -728,8 +753,7 @@ public interface AccountManagementService {
     public void deleteApplicationPlanMetricLimit(
         @PathParam("applicationPlanId") int applicationPlanId,
         @PathParam("metricId") int metricId,
-        @PathParam("limitId") int limitId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("limitId") int limitId
     );
 
     @GET
@@ -737,8 +761,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationPlanMetricPricingRules(
         @PathParam("applicationPlanId") int applicationPlanId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @POST
@@ -747,10 +770,9 @@ public interface AccountManagementService {
     public void createApplicationPlanMetricPricingRule(
         @PathParam("applicationPlanId") int applicationPlanId,
         @PathParam("metricId") int metricId,
-        @FormParam("access_token") String accessToken,
-        @FormParam("min") int min,
-        @FormParam("max") int max,
-        @FormParam("cost_per_unit") float costPerUnit
+        @FormParam("min") Integer min,
+        @FormParam("max") Integer max,
+        @FormParam("cost_per_unit") Float costPerUnit
     );
 
     @DELETE
@@ -758,24 +780,21 @@ public interface AccountManagementService {
     public void deleteApplicationPlanMetricPricingRule(
         @PathParam("applicationPlanId") int applicationPlanId,
         @PathParam("metricId") int metricId,
-        @PathParam("pricingRuleId") int pricingRuleId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("pricingRuleId") int pricingRuleId
     );
 
     @GET
     @Path("/application_plans/{applicationPlanId}/pricing_rules.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getApplicationPlanPricingRules(
-        @PathParam("applicationPlanId") int applicationPlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationPlanId") int applicationPlanId
     );
 
     @GET
     @Path("/services/{serviceId}/application_plans.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceApplicationPlans(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @POST
@@ -783,7 +802,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServiceApplicationPlan(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("approval_required") boolean approvalRequired,
         @FormParam("cost_per_month") Float costPerMonth,
@@ -797,8 +815,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceApplicationPlan(
         @PathParam("serviceId") int serviceId,
-        @PathParam("applicationPlanId") int applicationPlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationPlanId") int applicationPlanId
     );
 
     @PUT
@@ -807,7 +824,6 @@ public interface AccountManagementService {
     public void updateServiceApplicationPlan(
         @PathParam("serviceId") int serviceId,
         @PathParam("applicationPlanId") int applicationPlanId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("approval_required") Boolean approvalRequired,
         @FormParam("cost_per_month") Float costPerMonth,
@@ -820,8 +836,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/application_plans/{applicationPlanId}.xml")
     public void deleteServiceApplicationPlan(
         @PathParam("serviceId") int serviceId,
-        @PathParam("applicationPlanId") int applicationPlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("applicationPlanId") int applicationPlanId
     );
 
     @PUT
@@ -829,15 +844,13 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void defaultApplicationPlan(
         @PathParam("serviceId") int serviceId,
-        @PathParam("applicationPlanId") int applicationPlanId,
-        @FormParam("access_token") String accessToken
+        @PathParam("applicationPlanId") int applicationPlanId
     );
 
     @GET
     @Path("/applications.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServicesApplications(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage,
         @QueryParam("active_since") String activeSince,
@@ -851,7 +864,6 @@ public interface AccountManagementService {
     @Path("/applications/find.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String findServicesApplications(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("application_id") String applicationId,
         @QueryParam("user_key") String userKey,
         @QueryParam("app_id") String appId,
@@ -862,14 +874,12 @@ public interface AccountManagementService {
     @Path("/account/authentication_providers.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAdminPortalAuthenticationProviders(
-        @QueryParam("access_token") String accessToken
     );
 
     @POST
     @Path("/account/authentication_providers.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createAdminPortalAuthenticationProvider(
-        @FormParam("access_token") String accessToken,
         @FormParam("kind") String kind,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName,
@@ -884,8 +894,7 @@ public interface AccountManagementService {
     @Path("/account/authentication_providers/{authenticationProviderId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getAdminPortalAuthenticationProvider(
-        @PathParam("authenticationProviderId") int authenticationProviderId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("authenticationProviderId") int authenticationProviderId
     );
 
     @PUT
@@ -893,7 +902,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateAdminPortalAuthenticationProvider(
         @PathParam("authenticationProviderId") int authenticationProviderId,
-        @FormParam("access_token") String accessToken,
         @FormParam("client_id") String clientId,
         @FormParam("client_secret") String clientSecret,
         @FormParam("site") String site,
@@ -905,14 +913,12 @@ public interface AccountManagementService {
     @Path("/authentication_providers.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getDeveloperPortalAuthenticationProviders(
-        @QueryParam("access_token") String accessToken
     );
 
     @POST
     @Path("/authentication_providers.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createDeveloperPortalAuthenticationProvider(
-        @FormParam("access_token") String accessToken,
         @FormParam("kind") String kind,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName,
@@ -935,8 +941,7 @@ public interface AccountManagementService {
     @Path("/authentication_providers/{authenticationProviderId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getDeveloperPortalAuthenticationProvider(
-        @PathParam("authenticationProviderId") String authenticationProviderId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("authenticationProviderId") String authenticationProviderId
     );
 
     @PUT
@@ -944,7 +949,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateDeveloperPortalAuthenticationProvider(
         @PathParam("authenticationProviderId") int authenticationProviderId,
-        @FormParam("access_token") String accessToken,
         @FormParam("client_id") String clientId,
         @FormParam("client_secret") String clientSecret,
         @FormParam("site") String site,
@@ -957,7 +961,6 @@ public interface AccountManagementService {
     @Path("/backend_apis.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackends(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage
     );
@@ -966,7 +969,6 @@ public interface AccountManagementService {
     @Path("/backend_apis.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createBackend(
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName,
         @FormParam("description") String description,
@@ -977,8 +979,7 @@ public interface AccountManagementService {
     @Path("/backend_apis/{backendId}.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackend(
-        @PathParam("backendId") int backendId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("backendId") int backendId
     );
 
     @PUT
@@ -986,7 +987,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateBackend(
         @PathParam("backendId") int backendId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName,
         @FormParam("description") String description,
@@ -996,16 +996,14 @@ public interface AccountManagementService {
     @DELETE
     @Path("/backend_apis/{backendId}.json")
     public void deleteBackend(
-        @PathParam("backendId") int backendId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("backendId") int backendId
     );
 
     @GET
     @Path("/backend_apis/{backendId}/mapping_rules.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendMappingRules(
-        @PathParam("backendId") int backendId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("backendId") int backendId
     );
 
     @POST
@@ -1013,7 +1011,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createBackendMappingRule(
         @PathParam("backendId") int backendId,
-        @FormParam("access_token") String accessToken,
         @FormParam("http_method") String httpMethod,
         @FormParam("pattern") String pattern,
         @FormParam("delta") int delta,
@@ -1027,8 +1024,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendMappingRule(
         @PathParam("backendId") int backendId,
-        @PathParam("mappingRuleId") int mappingRuleId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("mappingRuleId") int mappingRuleId
     );
 
     @PUT
@@ -1037,7 +1033,6 @@ public interface AccountManagementService {
     public void updateBackendMappingRule(
         @PathParam("backendId") int backendId,
         @PathParam("mappingRuleId") int mappingRuleId,
-        @FormParam("access_token") String accessToken,
         @FormParam("http_method") String httpMethod,
         @FormParam("pattern") String pattern,
         @FormParam("delta") Integer delta,
@@ -1050,8 +1045,7 @@ public interface AccountManagementService {
     @Path("/backend_apis/{backendId}/mapping_rules/{mappingRuleId}.json")
     public void deleteBackendMappingRule(
         @PathParam("backendId") int backendId,
-        @PathParam("mappingRuleId") int mappingRuleId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("mappingRuleId") int mappingRuleId
     );
 
     @GET
@@ -1059,7 +1053,6 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendMetrics(
         @PathParam("backendId") int backendId,
-        @QueryParam("access_token") String accessToken,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage       
     );
@@ -1068,8 +1061,7 @@ public interface AccountManagementService {
     @Path("/backend_apis/{backendId}/metrics.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createBackendMetric(
-        @PathParam("backendId") String backendId,
-        @FormParam("access_token") String accessToken,
+        @PathParam("backendId") int backendId,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("system_name") String systemName,
         @FormParam("unit") String unit,
@@ -1081,8 +1073,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendMetric(
         @PathParam("backendId") int backendId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @PUT
@@ -1090,7 +1081,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateBackendMetric(
         @PathParam("backendId") int backendId,
-        @FormParam("access_token") String accessToken,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("unit") String unit,
         @FormParam("description") String description
@@ -1100,8 +1090,7 @@ public interface AccountManagementService {
     @Path("/backend_apis/{backendId}/metrics/{metricId}.json")
     public void deleteBackendMetric(
         @PathParam("backendId") int backendId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @GET
@@ -1109,8 +1098,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendMetricMethods(
         @PathParam("backendId") int backendId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @POST
@@ -1119,7 +1107,6 @@ public interface AccountManagementService {
     public String createBackendMetricMethod(
         @PathParam("backendId") int backendId,
         @PathParam("metricId") int metricId,
-        @FormParam("access_token") String accessToken,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("system_name") String systemName,
         @FormParam("unit") String unit,
@@ -1132,8 +1119,7 @@ public interface AccountManagementService {
     public String getBackendMetricMethod(
         @PathParam("backendId") int backendId,
         @PathParam("metricId") int metricId,
-        @PathParam("methodId") int methodId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("methodId") int methodId
     );
 
     @PUT
@@ -1143,7 +1129,6 @@ public interface AccountManagementService {
         @PathParam("backendId") int backendId,
         @PathParam("metricId") int metricId,
         @PathParam("methodId") int methodId,
-        @FormParam("access_token") String accessToken,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("unit") String unit,
         @FormParam("description") String description
@@ -1154,67 +1139,58 @@ public interface AccountManagementService {
     public void deleteBackendMetricMethod(
         @PathParam("backendId") int backendId,
         @PathParam("metricId") int metricId,
-        @PathParam("methodId") int methodId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("methodId") int methodId
     );
 
     @GET
-    @Path("/admin/api/services/{serviceId}/backend_usages.json")
+    @Path("/services/{serviceId}/backend_usages.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendUsages(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
     
     @POST
-    @Path("/admin/api/services/{serviceId}/backend_usages.json")
+    @Path("/services/{serviceId}/backend_usages.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createBackendUsage(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
-        @FormParam("backendId") int backendId,
+        @FormParam("backend_api_id") int backendId,
         @FormParam("path") String path
     );
 
     @GET
-    @Path("/admin/api/services/{serviceId}/backend_usages/{backendUsageId}.json")
+    @Path("/services/{serviceId}/backend_usages/{backendUsageId}.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getBackendUsage(
         @PathParam("serviceId") int serviceId,
-        @PathParam("backendUsageId") int backendUsageId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("backendUsageId") int backendUsageId
     );
 
     @PUT
-    @Path("/admin/api/services/{serviceId}/backend_usages/{backendUsageId}.json")
+    @Path("/services/{serviceId}/backend_usages/{backendUsageId}.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateBackendUsage(
         @PathParam("serviceId") int serviceId,
         @PathParam("backendUsageId") int backendUsageId,
-        @FormParam("access_token") String accessToken,
         @FormParam("path") String path
     );
 
     @DELETE
-    @Path("/admin/api/services/{serviceId}/backend_usages/{backendUsageId}.json")
+    @Path("/services/{serviceId}/backend_usages/{backendUsageId}.json")
     public void deleteBackendUsage(
         @PathParam("serviceId") int serviceId,
-        @PathParam("backendUsageId") int backendUsageId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("backendUsageId") int backendUsageId
     );
 
     @GET
     @Path("/features.xml")
     @Produces(MediaType.APPLICATION_XML)
-    public String getAccountFeatures(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getAccountFeatures();
 
     @POST
     @Path("/features.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createAccountFeature(
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName
     );
@@ -1223,29 +1199,24 @@ public interface AccountManagementService {
     @Path("/features.xml/{featureId}")
     @Produces(MediaType.APPLICATION_XML)
     public String getAccountFeature(
-        @PathParam("featureId") int featureId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("featureId") int featureId
     );
 
     @DELETE
     @Path("/features.xml/{featureId}")
     public void deleteAccountFeature(
-        @PathParam("featureId") int featureId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("featureId") int featureId
     );
 
     @GET
     @Path("/fields_definitions.xml")
     @Produces(MediaType.APPLICATION_XML)
-    public String getFieldDefinitions(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getFieldDefinitions();
 
     @POST
     @Path("/fields_definitions.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createFieldDefinition(
-        @FormParam("access_token") String accessToken,
         @FormParam("target") FieldTarget target,
         @FormParam("name") String name,
         @FormParam("label") String label,
@@ -1259,8 +1230,7 @@ public interface AccountManagementService {
     @Path("/fields_definitions/{fieldDefinitionId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getFieldDefinition(
-        @PathParam("fieldDefinitionId") String fieldDefinitionId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("fieldDefinitionId") String fieldDefinitionId
     );
 
     @PUT
@@ -1268,7 +1238,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateFieldDefinition(
         @PathParam("fieldDefinitionId") String fieldDefinitionId,
-        @FormParam("access_token") String accessToken,
         @FormParam("target") FieldTarget target,
         @FormParam("label") String label,
         @FormParam("required") Boolean required,
@@ -1282,7 +1251,6 @@ public interface AccountManagementService {
     @Path("/objects/status.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getObjectStatus(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("object_type") ObjectType objectType,
         @QueryParam("object_id") String objectId
     );
@@ -1290,15 +1258,12 @@ public interface AccountManagementService {
     @GET
     @Path("/provider.xml")
     @Produces(MediaType.APPLICATION_XML)
-    public String getProvider(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getProvider();
 
     @PUT
     @Path("/provider.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateProvider(
-        @FormParam("access_token") String accessToken,
         @FormParam("from_email") String fromEmail,
         @FormParam("support_email") String supportEmail,
         @FormParam("finance_support_email") String financeSupportEmail,
@@ -1308,16 +1273,13 @@ public interface AccountManagementService {
     @GET
     @Path("/service_plans.xml")
     @Produces(MediaType.APPLICATION_XML)
-    public String getServicePlans(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getServicePlans();
 
     @GET
     @Path("/service_plans/{servicePlanId}/features.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServicePlanFeatures(
-        @PathParam("servicePlanId") int servicePlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("servicePlanId") int servicePlanId
     );
 
     @POST
@@ -1325,7 +1287,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServicePlanFeature(
         @PathParam("servicePlanId") int servicePlanId,
-        @FormParam("access_token") String accessToken,
         @FormParam("feature_id") int featureId
     );
 
@@ -1333,15 +1294,13 @@ public interface AccountManagementService {
     @Path("/service_plans/{servicePlanId}/features/{featureId}.xml")
     public void deleteServicePlanFeature(
         @PathParam("servicePlanId") int servicePlanId,
-        @PathParam("featureId") int featureId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("featureId") int featureId
     );
 
     @GET
     @Path("/services.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServices(
-        @QueryParam("access_token") String accessToken,
         @QueryParam("page") int page,
         @QueryParam("per_page") int perPage       
     );
@@ -1350,7 +1309,6 @@ public interface AccountManagementService {
     @Path("/services.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createService(
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("description") String description,
         @FormParam("deployment_option") DeploymentOption deploymentOption,
@@ -1362,8 +1320,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getService(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @PUT
@@ -1371,7 +1328,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateService(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("description") String description,
         @FormParam("deployment_option") DeploymentOption deploymentOption,
@@ -1383,16 +1339,14 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public void deleteService(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @GET
     @Path("/services/{serviceId}/service_plans.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServicePlans(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @POST
@@ -1400,7 +1354,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServicePlan(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("approval_required") Boolean approvalRequired,
         @FormParam("system_name") String systenName,
@@ -1412,8 +1365,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getServicePlan(
         @PathParam("serviceId") int serviceId,
-        @PathParam("servicePlanId") int servicePlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("servicePlanId") int servicePlanId
     );
 
     @PUT
@@ -1422,7 +1374,6 @@ public interface AccountManagementService {
     public void updateServicePlan(
         @PathParam("serviceId") int serviceId,
         @PathParam("servicePlanId") int servicePlanId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("approval_required") Boolean approvalRequired,
         @FormParam("state_event") StateEvent stateEvent
@@ -1432,8 +1383,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/service_plans/{servicePlanId}.xml")
     public void deleteServicePlan(
         @PathParam("serviceId") int serviceId,
-        @PathParam("servicePlanId") int servicePlanId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("servicePlanId") int servicePlanId
     );
 
     @PUT
@@ -1441,16 +1391,14 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void defaultServicePlan(
         @PathParam("serviceId") int serviceId,
-        @PathParam("servicePlanId") int servicePlanId,
-        @FormParam("access_token") String accessToken
+        @PathParam("servicePlanId") int servicePlanId
     );
 
     @GET
     @Path("/services/{service_id}/features.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceFeatures(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @POST
@@ -1458,7 +1406,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServiceFeature(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("system_name") String systemName,
         @FormParam("description") String description,
@@ -1470,8 +1417,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceFeature(
         @PathParam("serviceId") int serviceId,
-        @PathParam("serviceFeatureId") int serviceFeatureId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceFeatureId") int serviceFeatureId
     );
 
     @PUT
@@ -1480,7 +1426,6 @@ public interface AccountManagementService {
     public void updateServiceFeature(
         @PathParam("serviceId") int serviceId,
         @PathParam("serviceFeatureId") int serviceFeatureId,
-        @QueryParam("access_token") String accessToken,
         @FormParam("name") String name,
         @FormParam("description") String description
     );
@@ -1489,16 +1434,14 @@ public interface AccountManagementService {
     @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
     public void deleteServiceFeature(
         @PathParam("serviceId") int serviceId,
-        @PathParam("serviceFeatureId") int serviceFeatureId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceFeatureId") int serviceFeatureId
     );
 
     @GET
     @Path("/services/{serviceId}/metrics.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceMetrics(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @POST
@@ -1506,7 +1449,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServiceMetric(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("system_name") String systemName,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("unit") String unit,
@@ -1518,8 +1460,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceMetric(
         @PathParam("serviceId") int serviceId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @PUT
@@ -1528,7 +1469,6 @@ public interface AccountManagementService {
     public void updateServiceMetric(
         @PathParam("serviceId") int serviceId,
         @PathParam("metricId") int metricId,
-        @FormParam("access_token") String accessToken,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("unit") String unit,
         @FormParam("description") String description       
@@ -1538,8 +1478,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/metrics/{metricId}.xml")
     public void deleteServiceMetric(
         @PathParam("serviceId") int serviceId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @GET
@@ -1547,8 +1486,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceMetricMethods(
         @PathParam("serviceId") int serviceId,
-        @PathParam("metricId") int metricId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("metricId") int metricId
     );
 
     @POST
@@ -1557,7 +1495,6 @@ public interface AccountManagementService {
     public void createServiceMetricMethod(
         @PathParam("serviceId") int serviceId,
         @PathParam("metricId") int metricId,
-        @FormParam("access_token") String accessToken,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("system_name") String systemName,
         @FormParam("unit") String unit,
@@ -1570,8 +1507,7 @@ public interface AccountManagementService {
     public String getServiceMetricMethod(
         @PathParam("serviceId") int serviceId,
         @PathParam("metricId") int metricId,
-        @PathParam("methodId") int methodId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("methodId") int methodId
     );
 
     @PUT
@@ -1581,7 +1517,6 @@ public interface AccountManagementService {
         @PathParam("serviceId") int serviceId,
         @PathParam("metricId") int metricId,
         @PathParam("methodId") int methodId,
-        @FormParam("access_token") String accessToken,
         @FormParam("friendly_name") String friendlyName,
         @FormParam("unit") String unit,
         @FormParam("description") String description       
@@ -1593,8 +1528,7 @@ public interface AccountManagementService {
     public void deleteServiceMetricMethod(
         @PathParam("serviceId") int serviceId,
         @PathParam("metricId") int metricId,
-        @PathParam("methodId") int methodId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("methodId") int methodId
     );
 
     @GET
@@ -1602,7 +1536,6 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getProxyConfig(
         @PathParam("environment") Environment environment,
-        @QueryParam("access_token") String accessToken,
         @QueryParam("host") String host,
         @QueryParam("version") String version
     );
@@ -1611,8 +1544,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/proxy.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceProxy(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @PATCH
@@ -1620,7 +1552,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateServiceProxy(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("endpoint") String endpoint,
         @FormParam("api_backend") String apiBackend,
         @FormParam("credentials_location") CredentialsLocation credentialsLocation,
@@ -1649,16 +1580,14 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/proxy/deploy.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void deployServiceProxy(
-        @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @GET
     @Path("/services/{serviceId}/proxy/mapping_rules.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceProxyMappingRules(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @POST
@@ -1666,7 +1595,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServiceProxyMappingRule(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("http_method") String httpMethod,
         @FormParam("pattern") String pattern,
         @FormParam("delta") int delta,
@@ -1680,16 +1608,14 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceProxyMappingRule(
         @PathParam("serviceId") int serviceId,
-        @PathParam("mappingRuleId") int mappingRuleId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("mappingRuleId") int mappingRuleId
     );
 
     @DELETE
     @Path("/services/{serviceId}/proxy/mapping_rules/{mappingRuleId}.xml")
     public void deleteServiceProxyMappingRule(
         @PathParam("serviceId") int serviceId,
-        @PathParam("mappingRuleId") int mappingRuleId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("mappingRuleId") int mappingRuleId
     );
 
     @PUT
@@ -1698,7 +1624,6 @@ public interface AccountManagementService {
     public void updateServiceProxyMappingRule(
         @PathParam("serviceId") int serviceId,
         @PathParam("mappingRuleId") int mappingRuleId,
-        @FormParam("access_token") String accessToken,
         @FormParam("http_method") String httpMethod,
         @FormParam("pattern") String pattern,
         @FormParam("delta") int delta,
@@ -1711,8 +1636,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/proxy/oidc_configuration.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceProxyOidc(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @PUT
@@ -1720,7 +1644,6 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateServiceProxyOidc(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("standard_flow_enabled") Boolean standardFlowEnabled,
         @FormParam("implicit_flow_enabled") Boolean implicitFlowEnabled,
         @FormParam("service_accounts_enabed") Boolean serviceAccountEnabled,
@@ -1732,8 +1655,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getServiceProxyConfigs(
         @PathParam("serviceId") int serviceId,
-        @PathParam("environment") Environment environment,
-        @QueryParam("access_token") String accessToken
+        @PathParam("environment") Environment environment
     );
 
     @GET
@@ -1741,8 +1663,7 @@ public interface AccountManagementService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getServiceProxyConfigLatest(
         @PathParam("serviceId") int serviceId,
-        @PathParam("environment") Environment environment,
-        @QueryParam("access_token") String accessToken
+        @PathParam("environment") Environment environment
     );
 
     @GET
@@ -1751,8 +1672,7 @@ public interface AccountManagementService {
     public String getServiceProxyConfigVersion(
         @PathParam("serviceId") int serviceId,
         @PathParam("environment") Environment environment,
-        @PathParam("version") String version,
-        @QueryParam("access_token") String accessToken
+        @PathParam("version") String version
     );
 
     @POST
@@ -1762,7 +1682,6 @@ public interface AccountManagementService {
         @PathParam("serviceId") int serviceId,
         @PathParam("environment") Environment environment,
         @PathParam("version") String version,
-        @FormParam("access_token") String accessToken,
         @FormParam("to") Environment toEnvironment
     );
 
@@ -1770,8 +1689,7 @@ public interface AccountManagementService {
     @Path("/services/{serviceId}/proxy/policies.json")
     @Produces(MediaType.APPLICATION_JSON)
     public String getServiceProxyPolicies(
-        @PathParam("serviceId") int serviceId,
-        @QueryParam("access_token") String accessToken
+        @PathParam("serviceId") int serviceId
     );
 
     @PUT
@@ -1779,22 +1697,18 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateServiceProxyPolicies(
         @PathParam("serviceId") int serviceId,
-        @FormParam("access_token") String accessToken,
         @FormParam("policies_config") String policiesConfig
     );
 
     @GET
     @Path("/settings.json")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getSettings(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getSettings();
 
     @PUT
     @Path("/settings.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateSettings(
-        @FormParam("access_token") String accessToken,
         @FormParam("useraccountarea_enabled") Boolean userAccountAreaEnabled,
         @FormParam("hide_service") Boolean hideService,
         @FormParam("signups_enabled") Boolean signupEnabled,
@@ -1810,7 +1724,6 @@ public interface AccountManagementService {
     @Path("/webhooks.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateWebhooks(
-        @FormParam("access_token") String accessToken,
         @FormParam("url") String url,
         @FormParam("active") Boolean active,
         @FormParam("provider_actions") Boolean providerActions,
@@ -1835,13 +1748,9 @@ public interface AccountManagementService {
     @GET
     @Path("/webhooks/failures.xml")
     @Produces(MediaType.APPLICATION_XML) 
-    public String getWebhooksFailures(
-        @QueryParam("access_token") String accessToken
-    );
+    public String getWebhooksFailures();
 
     @DELETE
     @Path("/webhooks/failures.xml")
-    public void deleteWebhooksFailures(
-        @QueryParam("access_token") String accessToken
-    );
+    public void deleteWebhooksFailures();
 }

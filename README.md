@@ -15,16 +15,26 @@ You can also create a native executable like this
 	quarkus build --no-tests --native
 
 ## Configure
-To configure the 3scale toolbox you need a 3scale access-token.
-Afterwards create **config/application.properties** with the following content
+To configure the 3scale toolbox you need a 3scale **access-token** and the **Admin-URL** for the tenant.
 
-	quarkus.profile=<profile-name>
-	%<profile-name>.quarkus.rest-client.threescale.url=<Admin-URL>
-	%<profile-name>.access_token=<access-token>
+The 3scale toolbox can use a property file for configuration or it can be configured via the toolbox itself.
 
-You can configure multiple tenants in the configuration file by adding additional profile sections, the currently active profile is defined by the **quarkus.profile** setting.
+To use configuration based on a file create **3scale-config.properties** in the current directory with the following content
 
-In the future this will be configureable by the 3scale toolbox itself using the **config** command (NYI).
+	threescale.tenant=<tenant-name>
+	threescale.tenant.<tenant-name>.url=<Admin-URL>
+	threescale.tenant.<tenant-name>.access_token=<access-token>
+	
+	
+
+You can configure multiple tenants in the configuration file by adding additional **threescale.tenant.<tenant-name>** sections, the currently active tenant is defined by the **threescale.tenant** setting.
+
+For commandline based configuration use
+
+	config tenant <tenant-name> <admin-url> <access-token>
+
+Right now this configuration is not persisted in 3scale-config.properties. You can also use environment variables on the commandline.
+
 
 ## Run
 
@@ -63,7 +73,7 @@ To run the toolbox in batch mode add run
 
  	java -jar target/quarkus-app/quarkus-run.jar -f <batch-file>
 
-In the batch files you can also assign results to variables and apply filters, both may of course be combined.
+In the batch files you can also assign results to variables and apply filters, both may of course be combined. You can also comment out lines by using **#** as the first character of the line.
 #### Variables
 In the batch file you can also assign the outcome of a command to a variable like this
 
@@ -80,7 +90,13 @@ You can also apply filters to a result of a command like this
 
 	<COMMAND>|<FILTER>
 
-Currently supported filters are **xpath** and **prettyprint**.
+Currently supported filters are **xpath**, **prettyprint** and **json2xml**.
+
+You can also specify more than one filter
+
+	<COMMAND>|<FILTER1>|<FILTER2>
+
+for example for converting json to xml and then applying xpath.
 
 ##### XPath
 To apply an xpath filter specify the filter like this
@@ -95,4 +111,4 @@ For pretty printing the output run
 ### Variables and Filters
 For combining variables and filters use the following syntax
 
-	assign variable <VARIABLE_NAME>=<COMMAND>|<FILTER>
+	assign variable <VARIABLE_NAME>=<COMMAND>|<FILTER1>|<FILTER2>

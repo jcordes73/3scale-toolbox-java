@@ -8,7 +8,15 @@ import picocli.CommandLine.ParameterException;
 
 @Command(name="user", mixinStandardHelpOptions = true, 
          subcommands = {AccountUserListCommand.class,
-                        AccountUserCreateCommand.class
+                        AccountUserGetCommand.class,
+                        AccountUserCreateCommand.class,
+                        AccountUserUpdateCommand.class,
+                        AccountUserDeleteCommand.class,
+                        AccountUserActivateCommand.class,
+                        AccountUserAdminCommand.class,
+                        AccountUserMemberCommand.class,
+                        AccountUserSuspendCommand.class,
+                        AccountUserUnsuspendCommand.class
                         }, 
         synopsisSubcommandLabel = "COMMAND")
 public class AccountUserCommand implements Runnable {

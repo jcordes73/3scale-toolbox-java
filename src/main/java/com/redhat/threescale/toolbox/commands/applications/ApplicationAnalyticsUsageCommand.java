@@ -1,17 +1,16 @@
 package com.redhat.threescale.toolbox.commands.applications;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.AnalyticsService;
+import com.redhat.threescale.toolbox.rest.client.service.AnalyticsServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 @Command(name="usage", mixinStandardHelpOptions = true)
 public class ApplicationAnalyticsUsageCommand implements Runnable {
@@ -22,11 +21,7 @@ public class ApplicationAnalyticsUsageCommand implements Runnable {
     CommandSpec spec;
     
     @Inject
-    @RestClient
-    AnalyticsService analyticsService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AnalyticsServiceFactory analyticsServiceFactory;
 
     @Parameters(index = "0", description = "Application ID", arity = "1")
     private int applicationId;
@@ -59,7 +54,7 @@ public class ApplicationAnalyticsUsageCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = analyticsService.getApplicationTraffic(applicationId, format, accessToken, metricName, since, period, until, granularity, timezone, skipChange);
+            String response = analyticsServiceFactory.getAnalyticsService().getApplicationTraffic(applicationId, format, metricName, since, period, until, granularity, timezone, skipChange);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {

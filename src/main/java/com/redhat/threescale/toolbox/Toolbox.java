@@ -1,13 +1,20 @@
 package com.redhat.threescale.toolbox;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.function.ToLongBiFunction;
+import java.util.Iterator;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.spi.ConfigSource;
 
 import com.redhat.threescale.toolbox.commands.account.AccountCommand;
 import com.redhat.threescale.toolbox.commands.accountplan.AccountPlanCommand;
@@ -26,6 +33,8 @@ import com.redhat.threescale.toolbox.commands.serviceplans.ServicePlansCommand;
 import com.redhat.threescale.toolbox.commands.services.ServiceCommand;
 import com.redhat.threescale.toolbox.commands.user.UserCommand;
 import com.redhat.threescale.toolbox.commands.webhooks.WebhooksCommand;
+import com.redhat.threescale.toolbox.config.ThreescaleConfigSource;
+import com.redhat.threescale.toolbox.helpers.JsonToXmlConverter;
 import com.redhat.threescale.toolbox.helpers.XPathExecution;
 
 import io.quarkus.picocli.runtime.annotations.TopCommand;
@@ -60,11 +69,17 @@ import picocli.CommandLine.Command;
 public class Toolbox implements Runnable, QuarkusApplication {
 
     @Inject
+    Config config;
+    
+    @Inject
     CommandLine.IFactory factory;
 
     @Inject
     XPathExecution xPathExecution;
-    
+
+    @Inject
+    JsonToXmlConverter jsonToXmlConverter;
+
     private HashMap<String,String> variables = new HashMap<String,String>();
     
     @Override
@@ -75,17 +90,44 @@ public class Toolbox implements Runnable, QuarkusApplication {
 
     @Override
     public int run(String... args) throws Exception {
+        readConfiguration();
+
         CommandLine commandLine = new CommandLine(this, factory);
 
         int exitCode = -1;
 
         if (args.length > 0 && "-f".equals(args[0])) {
+            commandLine.setTrimQuotes(false);
             exitCode = runBatch(commandLine, args);
         } else {
-            exitCode = commandLine.execute(args);
+            exitCode = executeLine(commandLine, String.join(" ", args));
         }
 
         return exitCode;
+    }
+
+    private void readConfiguration() throws Exception {
+        Properties prop = new Properties();
+        File file = new File("3scale-config.properties");
+
+        if (file.exists()){
+            prop.load(new FileReader(file));
+
+            HashMap<String,String> configs = prop.entrySet().stream().collect(
+                Collectors.toMap(
+                e -> String.valueOf(e.getKey()),
+                e -> String.valueOf(e.getValue()),
+                (prev, next) -> next, HashMap::new
+            ));
+
+            for (Iterator<ConfigSource> it = config.getConfigSources().iterator(); it.hasNext();){
+                ConfigSource configSource = it.next();
+
+                if (configSource.getName() == ThreescaleConfigSource.NAME){
+                    configSource.getProperties().putAll(configs);
+                }
+            }
+        }
     }
 
     private int runBatch(CommandLine commandLine, String... args) throws Exception {
@@ -96,54 +138,88 @@ public class Toolbox implements Runnable, QuarkusApplication {
         String line = reader.readLine();
 
         while (line != null) {
-            String toolboxCommand = replaceVariables(line);
-
-            String variableName = null;
-            String filter = null;
-
-            if (toolboxCommand.startsWith("assign variable")){
-                int commandPos = toolboxCommand.indexOf("=");
-
-                variableName = toolboxCommand.substring(16, commandPos);
-                toolboxCommand = toolboxCommand.substring(commandPos+1);
-
+            if (!line.startsWith("#") && !line.isBlank()){
+                exitCode = executeLine(commandLine, line);
             }
+            line = reader.readLine();
+        }
 
-            int filterIndex = toolboxCommand.indexOf("|");
+        reader.close();
 
-            if (filterIndex > 0) {
-                filter = toolboxCommand.substring(filterIndex+1);
+        return exitCode;
+    }
 
-                toolboxCommand = toolboxCommand.substring(0, filterIndex);
+    private int executeLine(CommandLine commandLine, String line) throws Exception {
+        String toolboxCommand = replaceVariables(line);
+
+        String variableName = null;
+        String filterCommand = null;
+
+        if (toolboxCommand.startsWith("assign variable")){
+            int commandPos = toolboxCommand.indexOf("=");
+
+            variableName = toolboxCommand.substring(16, commandPos);
+            toolboxCommand = toolboxCommand.substring(commandPos+1);
+        }
+
+        int filterIndex = toolboxCommand.indexOf("|");
+
+        if (filterIndex > 0) {
+            filterCommand = toolboxCommand.substring(filterIndex+1);
+
+            toolboxCommand = toolboxCommand.substring(0, filterIndex);
+        }
+
+
+        ArrayList<String> parameters = new ArrayList<String>();
+        
+        String regex = "\"([^\"]*)\"|(\\S+)";
+
+        Matcher m = Pattern.compile(regex).matcher(toolboxCommand);
+        while (m.find()) {
+            if (m.group(1) != null) {
+                parameters.add(m.group(1));
+            } else {
+                parameters.add(m.group(2));
             }
+        }
 
-            StringWriter sw = new StringWriter();                
-            commandLine.setOut(new PrintWriter(sw));
-            exitCode = commandLine.execute(toolboxCommand.split("\\s"));
-            commandLine.setOut(new PrintWriter(System.out));
+        StringWriter sw = new StringWriter();                
+        commandLine.setOut(new PrintWriter(sw));
+        int exitCode = commandLine.execute(parameters.toArray(new String[parameters.size()]));
+        commandLine.setOut(new PrintWriter(System.out));
 
-            String result = sw.toString();
+        String result = sw.toString();
 
-            if (filter != null){
+        if (filterCommand != null){
+
+            String[] filters = null;
+            
+            if (filterCommand.contains("|"))
+                filters = filterCommand.split("\\|");
+            else
+                filters = new String[]{filterCommand};
+
+            for (int i=0; i < filters.length; i++){
+                String filter = filters[i];
+
                 if (filter.startsWith("xpath")){
                     String xpathQuery = filter.substring(6);
 
                     result = xPathExecution.execute(result, xpathQuery);
                 } else if (filter.startsWith("prettyprint")){
                     result = xPathExecution.prettyPrint(result);
+                } else if (filter.startsWith("json2xml")){
+                    result = jsonToXmlConverter.convert(result);
                 }
-            }
-
-            if (variableName != null){
-                variables.put(variableName, result);
-            } else {
-                System.out.print(result);
-            }
-
-            line = reader.readLine();
+          }
         }
 
-        reader.close();
+        if (variableName != null){
+            variables.put(variableName, result);
+        } else {
+            System.out.print(result);
+        }
 
         return exitCode;
     }

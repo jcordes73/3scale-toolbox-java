@@ -1,15 +1,14 @@
 package com.redhat.threescale.toolbox.commands.account;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import org.jboss.logging.Logger;
+
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
+import picocli.CommandLine.Parameters;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
@@ -18,13 +17,9 @@ public class AccountCreateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(AccountCreateCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
-    @ConfigProperty(name="access_token")
-    private String accessToken;
-
-    @Parameters(index = "0", description = "org_name", arity = "1")
+    @Parameters(index = "0", description = "org_name", arity = "1", converter = QuotedStringConverter.class)
     public String orgName;
 
     @Parameters(index = "1", description = "username", arity = "1")
@@ -52,7 +47,7 @@ public class AccountCreateCommand implements Runnable {
     public void run() {
 
         try {
-            accountManagementService.createAccount(accessToken, orgName, userName, email, password, accountPlanId, servicePlanId, applicationPlanId, additionalProperties);
+            accountManagementServiceFactory.getAccountManagementService().createAccount(orgName, userName, email, password, accountPlanId, servicePlanId, applicationPlanId, additionalProperties);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }        

@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.applicationplans;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -16,11 +14,7 @@ public class ApplicationPlanFeaturesCreateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(ApplicationPlanFeaturesCreateCommand.class);
     
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Application Plan ID", arity = "1")
     public int applicationPlanId;
@@ -31,7 +25,7 @@ public class ApplicationPlanFeaturesCreateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.createApplicationPlanFeature(applicationPlanId, accessToken, featureId);
+            accountManagementServiceFactory.getAccountManagementService().createApplicationPlanFeature(applicationPlanId, featureId);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

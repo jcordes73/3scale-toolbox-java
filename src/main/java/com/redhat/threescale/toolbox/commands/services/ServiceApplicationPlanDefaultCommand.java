@@ -1,14 +1,12 @@
 package com.redhat.threescale.toolbox.commands.services;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import org.jboss.logging.Logger;
+
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
 
 @Command(name="default", mixinStandardHelpOptions = true)
 public class ServiceApplicationPlanDefaultCommand implements Runnable {
@@ -16,11 +14,7 @@ public class ServiceApplicationPlanDefaultCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(ServiceApplicationPlanDefaultCommand.class);
 
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-    
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Service ID", arity = "1")
     public int serviceId;
@@ -34,7 +28,7 @@ public class ServiceApplicationPlanDefaultCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.defaultApplicationPlan(serviceId, applicationPlanId, accessToken);
+            accountManagementServiceFactory.getAccountManagementService().defaultApplicationPlan(serviceId, applicationPlanId);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

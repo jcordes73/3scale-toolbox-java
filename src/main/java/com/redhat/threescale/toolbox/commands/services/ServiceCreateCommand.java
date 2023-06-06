@@ -1,10 +1,9 @@
 package com.redhat.threescale.toolbox.commands.services;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -17,11 +16,7 @@ public class ServiceCreateCommand implements Runnable {
     private static final Logger LOG = Logger.getLogger(ServiceCreateCommand.class);
     
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Name", arity = "1")
     public String name;
@@ -41,7 +36,7 @@ public class ServiceCreateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            accountManagementService.createService(accessToken, name, description, deploymentOption, authenticationMode, systemName);
+            accountManagementServiceFactory.getAccountManagementService().createService(name, description, deploymentOption, authenticationMode, systemName);
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

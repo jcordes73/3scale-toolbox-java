@@ -1,10 +1,8 @@
 package com.redhat.threescale.toolbox.commands.backend;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
+import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
@@ -21,11 +19,7 @@ public class BackendUsageGetCommand implements Runnable {
     CommandSpec spec;
     
     @Inject
-    @RestClient
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name="access_token")
-    private String accessToken;
+    AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Service ID", arity = "1")
     public int serviceId;
@@ -36,7 +30,7 @@ public class BackendUsageGetCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = accountManagementService.getBackendUsage(serviceId, backendUsageId, accessToken);
+            String response = accountManagementServiceFactory.getAccountManagementService().getBackendUsage(serviceId, backendUsageId);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
