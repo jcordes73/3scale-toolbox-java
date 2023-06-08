@@ -15,7 +15,7 @@ You can also create a native executable like this
 	quarkus build --no-tests --native
 
 ## Configure
-To configure the 3scale toolbox you need a 3scale **access-token** and the **Admin-URL** for the tenant.
+To configure the 3scale toolbox you need a 3scale **access-token** and the **Admin-URL** for the tenant. You can also use a **provider-key** instead.
 
 The 3scale toolbox can use a property file for configuration or it can be configured via the toolbox itself.
 
@@ -24,6 +24,7 @@ To use configuration based on a file create **3scale-config.properties** in the 
 	threescale.tenant=<tenant-name>
 	threescale.tenant.<tenant-name>.url=<Admin-URL>
 	threescale.tenant.<tenant-name>.access_token=<access-token>
+	threescale.tenant.<tenant-name>.provider_key=<provider-key>
 	
 	
 
@@ -31,14 +32,18 @@ You can configure multiple tenants in the configuration file by adding additiona
 
 For commandline based configuration use
 
-	config tenant <tenant-name> <admin-url> <access-token>
+	config tenant <tenant-name> <admin-url> --access-token=<access-token>
+
+or
+
+	config tenant <tenant-name> <admin-url> --provider-key=<provider-key>
 
 Right now this configuration is not persisted in 3scale-config.properties. You can also use environment variables on the commandline.
 
 
 ## Run
 
-The toolbox can be used to launch a single command or to run multiple commands in batch mode.
+The toolbox can be used to launch a single command, run multiple commands in batch mode or also in an interactive mode.
 
 ### Standard mode
 To launch the 3scale toolbox execute
@@ -74,8 +79,21 @@ To run the toolbox in batch mode add run
  	java -jar target/quarkus-app/quarkus-run.jar -f <batch-file>
 
 In the batch files you can also assign results to variables and apply filters, both may of course be combined. You can also comment out lines by using **#** as the first character of the line.
+### Interactive mode
+To run toolbox in interactive/shell mode run
+
+	java -jar target/quarkus-app/quarkus-run.jar -i
+
+You should now see a prompt like this
+
+	3scale>
+
+Just hit **<enter>** for a list of available commands.
+
+Use **CTRL-c** to exit the shell.
+
 #### Variables
-In the batch file you can also assign the outcome of a command to a variable like this
+In the batch file or in the shell you can also assign the outcome of a command to a variable like this
 
 	assign variable <VARIABLE_NAME>=<COMMAND>
 

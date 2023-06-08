@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -99,6 +100,8 @@ public class Toolbox implements Runnable, QuarkusApplication {
         if (args.length > 0 && "-f".equals(args[0])) {
             commandLine.setTrimQuotes(false);
             exitCode = runBatch(commandLine, args);
+        } else if (args.length > 0 && "-i".equals(args[0])) {
+            runInteractive(commandLine);
         } else {
             exitCode = executeLine(commandLine, String.join(" ", args));
         }
@@ -145,6 +148,26 @@ public class Toolbox implements Runnable, QuarkusApplication {
         }
 
         reader.close();
+
+        return exitCode;
+    }
+
+    private int runInteractive(CommandLine commandLine) throws Exception {
+        int exitCode = -1;
+
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.print("3scale>");
+        String line = scanner.nextLine();
+
+        while (line != null) {
+            exitCode = executeLine(commandLine, line);
+            
+            System.out.print("3scale>");
+            line = scanner.nextLine();
+        }
+
+        scanner.close();
 
         return exitCode;
     }

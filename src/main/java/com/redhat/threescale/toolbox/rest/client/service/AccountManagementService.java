@@ -92,7 +92,9 @@ public interface AccountManagementService {
     @ClientExceptionMapper
     static RuntimeException toException(Response response) {
 
-        if (response.getStatus() == 401) {
+        if (response.getStatus() == 400){
+            return new RuntimeException("Bad Request");
+        } else if (response.getStatus() == 401) {
             return new RuntimeException("Unauthorized");
         } else if (response.getStatus() == 403) {
             return new RuntimeException("Access denied");
