@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.services;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -23,13 +24,13 @@ public class ServiceMetricUpdateCommand implements Runnable {
     @Parameters(index = "1", description = "Service Metric ID", arity = "1")
     public int metricId;
 
-    @Option(names = {"--friendly-name"}, description = "Friendly name", arity = "1")
+    @Option(names = {"--friendly-name"}, description = "Friendly name", arity = "1", converter = QuotedStringConverter.class)
     public String friendlyName;
 
     @Option(names = {"--unit",}, description = "Unit")
     public String unit;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
     
 

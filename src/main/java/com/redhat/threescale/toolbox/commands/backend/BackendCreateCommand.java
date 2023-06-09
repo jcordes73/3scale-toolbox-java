@@ -28,7 +28,7 @@ public class BackendCreateCommand implements Runnable {
     @Option(names = {"--system-name",}, description = "System name")
     public String systemName;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
 
     @Override

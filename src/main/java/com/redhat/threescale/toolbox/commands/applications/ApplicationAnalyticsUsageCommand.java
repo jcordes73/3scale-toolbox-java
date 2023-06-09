@@ -47,8 +47,8 @@ public class ApplicationAnalyticsUsageCommand implements Runnable {
     @Option(names = {"--timezone"}, description="Time zone for calculations.", defaultValue = "UTC")
     private AnalyticsService.Timezone timezone;
 
-    @Option(names = {"--skip-change"}, description="Time zone for calculations.", defaultValue = Option.NULL_VALUE, negatable = true)
-    private Boolean skipChange;
+    @Option(names = {"--skip-change"}, description="Skip period over period calculations (defaults to true).", negatable = true)
+    private Boolean skipChange = Boolean.TRUE;
 
 
     @Override

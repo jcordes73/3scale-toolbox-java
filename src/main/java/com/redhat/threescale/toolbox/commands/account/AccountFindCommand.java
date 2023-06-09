@@ -5,6 +5,7 @@ import org.jboss.logging.Logger;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Email;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;

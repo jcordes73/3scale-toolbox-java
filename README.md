@@ -90,7 +90,7 @@ You should now see a prompt like this
 
 Just hit **<enter>** for a list of available commands.
 
-Use **CTRL-c** to exit the shell.
+Use **CTRL-c** or type **exit** to exit the shell.
 
 #### Variables
 In the batch file or in the shell you can also assign the outcome of a command to a variable like this
@@ -102,6 +102,10 @@ To reference a variable in the batch file you specify
 	${VARIABLE_NAME}
 
 In case the variable is not assigned in the batch file itself, the toolbox will look for an environment variable with the same name.
+
+To show the value of a variable you can use the **echo** command like this
+
+	echo ${VARIABLE_NAME}
 
 #### Filters
 You can also apply filters to a result of a command like this

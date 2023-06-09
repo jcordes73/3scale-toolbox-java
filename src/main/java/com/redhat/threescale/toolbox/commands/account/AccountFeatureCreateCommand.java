@@ -22,6 +22,7 @@ public class AccountFeatureCreateCommand implements Runnable {
     public String name;
 
     @Option(names = {"--system-name",}, description = "System name")
+    @
     public String systemName;
 
     @Override

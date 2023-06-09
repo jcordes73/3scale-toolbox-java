@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.backend;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -26,7 +27,7 @@ public class BackendUpdateCommand implements Runnable {
     @Option(names = {"--system-name",}, description = "System name")
     public String systemName;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
 
     @Option(names = {"--private-endpoint",}, description = "Private Base URL (your API)")

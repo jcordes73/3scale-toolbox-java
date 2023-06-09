@@ -5,6 +5,7 @@ import org.jboss.logging.Logger;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Email;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -24,6 +25,7 @@ public class AccountUserCreateCommand implements Runnable {
     public String userName;
 
     @Parameters(index = "2", description = "email", arity = "1")
+    @Email
     public String email;
 
     @Parameters(index = "3", description = "password", arity = "1")

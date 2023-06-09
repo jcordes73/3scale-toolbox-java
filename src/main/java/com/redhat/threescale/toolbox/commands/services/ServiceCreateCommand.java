@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.services;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -21,7 +22,7 @@ public class ServiceCreateCommand implements Runnable {
     @Parameters(index = "0", description = "Name", arity = "1")
     public String name;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
 
     @Option(names = {"--deployment-option",}, description = "Deployment option")

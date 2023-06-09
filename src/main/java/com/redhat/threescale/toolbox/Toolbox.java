@@ -142,7 +142,11 @@ public class Toolbox implements Runnable, QuarkusApplication {
 
         while (line != null) {
             if (!line.startsWith("#") && !line.isBlank()){
-                exitCode = executeLine(commandLine, line);
+                if (line.startsWith("echo")){
+                    System.out.println(replaceVariables(line.substring(5)));
+                } else {
+                    exitCode = executeLine(commandLine, line);
+                }
             }
             line = reader.readLine();
         }
@@ -160,8 +164,12 @@ public class Toolbox implements Runnable, QuarkusApplication {
         System.out.print("3scale>");
         String line = scanner.nextLine();
 
-        while (line != null) {
-            exitCode = executeLine(commandLine, line);
+        while (line != null && !"exit".equals(line)) {
+            if (line.startsWith("echo")){
+                System.out.println(replaceVariables(line.substring(5)));
+            } else {
+                exitCode = executeLine(commandLine, line);
+            }
             
             System.out.print("3scale>");
             line = scanner.nextLine();

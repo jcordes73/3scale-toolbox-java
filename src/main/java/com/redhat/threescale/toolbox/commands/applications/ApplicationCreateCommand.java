@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.applications;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -18,13 +19,13 @@ public class ApplicationCreateCommand implements Runnable {
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
-    @Parameters(index = "0", description = "plan_id", arity = "1")
+    @Parameters(index = "0", description = "Plan ID", arity = "1")
     public int planId;
 
-    @Parameters(index = "1", description = "name", arity = "1")
+    @Parameters(index = "1", description = "Name", arity = "1")
     public String name;
 
-    @Parameters(index = "2", description = "description", arity = "1")
+    @Parameters(index = "2", description = "Description", arity = "1", converter = QuotedStringConverter.class)
     public String description;
 
     @Option(names = {"--user-key",}, description = "User Key (API Key) of the application to be created")

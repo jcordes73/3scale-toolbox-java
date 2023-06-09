@@ -17,6 +17,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -41,12 +42,25 @@ public class XPathExecution {
         
         Document xmlDocument = builder.parse(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
 
-        Node node = (Node)xPath.compile(xpathExpression).evaluate(xmlDocument, XPathConstants.NODE);
+        NodeList nodeList = (NodeList)xPath.compile(xpathExpression).evaluate(xmlDocument, XPathConstants.NODESET);
         
-        StringWriter sw = new StringWriter();
-        transformer.transform(new DOMSource(node), new StreamResult(sw));
+        StringBuffer result = new StringBuffer();
 
-        return sw.toString();
+        for (int i=0; i < nodeList.getLength(); i++){
+            Node node = nodeList.item(i);
+            StringWriter sw = new StringWriter();
+            transformer.transform(new DOMSource(node), new StreamResult(sw));
+
+            result.append(sw.toString());
+            if (node.getNodeType() == Node.TEXT_NODE){
+                if (i < nodeList.getLength()-1)
+                    result.append(" ");
+                else
+                    result.append("\n");
+            }
+        }
+
+        return result.toString();
     }
 
     public String prettyPrint(String content) throws Exception {

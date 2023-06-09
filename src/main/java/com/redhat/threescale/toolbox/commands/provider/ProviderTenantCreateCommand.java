@@ -5,6 +5,7 @@ import org.jboss.logging.Logger;
 import com.redhat.threescale.toolbox.rest.client.service.MasterServiceFactory;
 
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Email;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -23,6 +24,7 @@ public class ProviderTenantCreateCommand implements Runnable {
     public String userName;
 
     @Parameters(index="2", description = "Email.", arity="1")
+    @Email
     public String email;
 
     @Parameters(index="3", description = "Password.", arity="1")

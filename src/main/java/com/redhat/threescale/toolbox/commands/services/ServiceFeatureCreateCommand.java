@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.services;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -27,7 +28,7 @@ public class ServiceFeatureCreateCommand implements Runnable {
     @Option(names = {"--system-name",}, description = "System name")
     public String systemName;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
     
     @Option(names = {"--scope",}, description = "Scope. Valid values: ${COMPLETION-CANDIDATES}")

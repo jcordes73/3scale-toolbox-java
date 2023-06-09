@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -33,7 +34,7 @@ public class ActiveDocsUpdateCommand implements Runnable {
     @Option(names = {"--service-id",}, description = "Service ID")
     public Integer serviceId;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
     
     @Option(names = {"--published",}, description = "Published", defaultValue = Option.NULL_VALUE, negatable = true)

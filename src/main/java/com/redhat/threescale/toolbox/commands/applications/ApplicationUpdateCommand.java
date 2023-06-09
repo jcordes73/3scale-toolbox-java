@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.applications;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -26,7 +27,7 @@ public class ApplicationUpdateCommand implements Runnable {
     @Parameters(index = "2", description = "Application Name", arity = "1")
     private String applicationName;
 
-    @Option(names = {"--description"}, description = "Description")
+    @Option(names = {"--description"}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
 
     @Option(names = {"--redirect-url"}, description = "Redirect-URL")

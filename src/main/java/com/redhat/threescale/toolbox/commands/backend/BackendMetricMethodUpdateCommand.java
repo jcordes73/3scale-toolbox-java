@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.backend;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -33,7 +34,7 @@ public class BackendMetricMethodUpdateCommand implements Runnable {
     @Option(names = {"--unit",}, description = "Unit")
     public String unit;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
 
     @Override

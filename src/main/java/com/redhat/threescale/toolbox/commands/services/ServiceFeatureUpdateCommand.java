@@ -2,6 +2,7 @@ package com.redhat.threescale.toolbox.commands.services;
 
 import org.jboss.logging.Logger;
 
+import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -26,7 +27,7 @@ public class ServiceFeatureUpdateCommand implements Runnable {
     @Option(names = {"--name",}, description = "Name")
     public String name;
 
-    @Option(names = {"--description",}, description = "Description")
+    @Option(names = {"--description",}, description = "Description", converter = QuotedStringConverter.class)
     public String description;
     
     @Override
