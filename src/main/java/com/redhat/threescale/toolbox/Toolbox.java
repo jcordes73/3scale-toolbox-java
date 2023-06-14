@@ -17,23 +17,10 @@ import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
-import com.redhat.threescale.toolbox.commands.account.AccountCommand;
-import com.redhat.threescale.toolbox.commands.accountplan.AccountPlanCommand;
-import com.redhat.threescale.toolbox.commands.activedocs.ActiveDocsCommand;
-import com.redhat.threescale.toolbox.commands.applicationplans.ApplicationPlanCommand;
-import com.redhat.threescale.toolbox.commands.applications.ApplicationCommand;
-import com.redhat.threescale.toolbox.commands.authentication.AuthenticationCommand;
-import com.redhat.threescale.toolbox.commands.backend.BackendCommand;
+import com.redhat.threescale.toolbox.commands.accounts.AccountsCommand;
 import com.redhat.threescale.toolbox.commands.config.ConfigCommand;
-import com.redhat.threescale.toolbox.commands.fielddefinitions.FieldDefinitionsCommand;
-import com.redhat.threescale.toolbox.commands.invoice.InvoiceCommand;
-import com.redhat.threescale.toolbox.commands.objects.ObjectsCommand;
-import com.redhat.threescale.toolbox.commands.policy.PolicyCommand;
 import com.redhat.threescale.toolbox.commands.provider.ProviderCommand;
-import com.redhat.threescale.toolbox.commands.serviceplans.ServicePlansCommand;
-import com.redhat.threescale.toolbox.commands.services.ServiceCommand;
-import com.redhat.threescale.toolbox.commands.user.UserCommand;
-import com.redhat.threescale.toolbox.commands.webhooks.WebhooksCommand;
+import com.redhat.threescale.toolbox.commands.services.ServicesCommand;
 import com.redhat.threescale.toolbox.config.ThreescaleConfigSource;
 import com.redhat.threescale.toolbox.helpers.JsonToXmlConverter;
 import com.redhat.threescale.toolbox.helpers.XPathExecution;
@@ -49,22 +36,9 @@ import picocli.CommandLine.Command;
 @TopCommand
 @Command(name="",mixinStandardHelpOptions = true,
          subcommands = {ConfigCommand.class,
-                        AccountCommand.class,
-                        AccountPlanCommand.class,
-                        UserCommand.class,
-                        ApplicationPlanCommand.class,
-                        ApplicationCommand.class,
-                        ServiceCommand.class,
-                        BackendCommand.class,
-                        ActiveDocsCommand.class,
-                        AuthenticationCommand.class,
-                        InvoiceCommand.class,
-                        PolicyCommand.class,
-                        FieldDefinitionsCommand.class,
-                        ObjectsCommand.class,
+                        ServicesCommand.class,
+                        AccountsCommand.class,
                         ProviderCommand.class,
-                        ServicePlansCommand.class,
-                        WebhooksCommand.class
                         },
                         synopsisSubcommandLabel = "COMMAND")
 public class Toolbox implements Runnable, QuarkusApplication {
