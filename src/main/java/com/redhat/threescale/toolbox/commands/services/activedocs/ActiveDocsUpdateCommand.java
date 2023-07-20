@@ -1,5 +1,9 @@
 package com.redhat.threescale.toolbox.commands.services.activedocs;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -47,7 +51,16 @@ public class ActiveDocsUpdateCommand implements Runnable {
     public void run() {
 
         try {
-            String body = Files.readString(Paths.get(swaggerFile));
+            String body = null;
+            
+            if (swaggerFile.startsWith("http")){
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder(URI.create(swaggerFile)).header("content-type", "application/json").GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                body = response.body();
+            } else {
+                body = Files.readString(Paths.get(swaggerFile));
+            }
             
             accountManagementServiceFactory.getAccountManagementService().updateActiveDocs(name, serviceId, body, description, published, skipSwaggerValidation);
         } catch (Exception e) {

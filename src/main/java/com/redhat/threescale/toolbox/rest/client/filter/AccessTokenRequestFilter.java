@@ -26,10 +26,18 @@ public class AccessTokenRequestFilter implements ClientRequestFilter {
 
         if ("post".equalsIgnoreCase(method)||"put".equalsIgnoreCase(method)||"patch".equalsIgnoreCase(method)){
             MultivaluedHashMap form = (MultivaluedHashMap)requestContext.getEntity();
-            if (!"undefined".equals(accessToken.get()))
-                form.add("access_token", accessToken.get());
-            else if (!"undefined".equals(providerKey.get()))
-                form.add("provider_key", providerKey.get());
+
+            if (form != null){
+                if (!"undefined".equals(accessToken.get()))
+                    form.add("access_token", accessToken.get());
+                else if (!"undefined".equals(providerKey.get()))
+                    form.add("provider_key", providerKey.get());
+            } else {
+                if (!"undefined".equals(accessToken.get()))
+                    requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("access_token", accessToken.get()).build());
+                else if (!"undefined".equals(providerKey.get()))
+                    requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("provider_key", providerKey.get()).build());    
+            }
         } else {
             if (!"undefined".equals(accessToken.get()))
                 requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("access_token", accessToken.get()).build());

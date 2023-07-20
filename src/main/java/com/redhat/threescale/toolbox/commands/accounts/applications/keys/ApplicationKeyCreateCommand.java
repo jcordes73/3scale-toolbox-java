@@ -1,4 +1,4 @@
-package com.redhat.threescale.toolbox.commands.accounts.applications;
+package com.redhat.threescale.toolbox.commands.accounts.applications.keys;
 
 import org.jboss.logging.Logger;
 
@@ -9,9 +9,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name="create", mixinStandardHelpOptions = true)
-public class ApplicationReferrerFilterCreateCommand implements Runnable {
+public class ApplicationKeyCreateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ApplicationReferrerFilterCreateCommand.class);
+    private static final Logger LOG = Logger.getLogger(ApplicationKeyCreateCommand.class);
 
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
@@ -22,13 +22,13 @@ public class ApplicationReferrerFilterCreateCommand implements Runnable {
     @Parameters(index = "1", description = "Application ID", arity = "1")
     private int applicationId;
 
-    @Parameters(index = "2", description = "Referrer Filter", arity = "1")
-    private String referrerFilter;
+    @Parameters(index = "2", description = "Key", arity = "1")
+    private String key;
     
     @Override
     public void run() {
         try {
-            accountManagementServiceFactory.getAccountManagementService().createApplicationReferrerFilter(accountId, applicationId, referrerFilter);
+            accountManagementServiceFactory.getAccountManagementService().createApplicationKey(accountId, applicationId, key);           
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

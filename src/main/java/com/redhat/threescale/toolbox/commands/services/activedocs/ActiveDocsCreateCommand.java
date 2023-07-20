@@ -1,5 +1,9 @@
 package com.redhat.threescale.toolbox.commands.services.activedocs;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -25,7 +29,7 @@ public class ActiveDocsCreateCommand implements Runnable {
     @Parameters(index = "0", description = "name", arity = "1")
     public String name;
 
-    @Parameters(index = "1", description = "Swagger File", arity = "1")
+    @Parameters(index = "1", description = "Swagger File. Either local file or http-url.", arity = "1")
     public String swaggerFile;
     
     @Option(names = {"--system-name",}, description = "System name")
@@ -47,7 +51,16 @@ public class ActiveDocsCreateCommand implements Runnable {
     public void run() {
 
         try {
-            String body = Files.readString(Paths.get(swaggerFile));
+            String body = null;
+            
+            if (swaggerFile.startsWith("http")){
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder(URI.create(swaggerFile)).header("content-type", "application/json").GET().build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                body = response.body();
+            } else {
+                body = Files.readString(Paths.get(swaggerFile));
+            }
  
             accountManagementServiceFactory.getAccountManagementService().createActiveDocs(name, systemName, serviceId, body, description, published, skipSwaggerValidation);
         } catch (Exception e) {

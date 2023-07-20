@@ -1,4 +1,4 @@
-package com.redhat.threescale.toolbox.commands.accounts.applications;
+package com.redhat.threescale.toolbox.commands.accounts.applications.referrerfilters;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Spec;
@@ -6,14 +6,14 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 
 
-@Command(name="key", 
+@Command(name="referrer-filters", 
         mixinStandardHelpOptions = true, 
-        subcommands = {ApplicationKeyListCommand.class,
-                       ApplicationKeyCreateCommand.class,
-                       ApplicationKeyDeleteCommand.class
+        subcommands = {ApplicationReferrerFilterListCommand.class,
+                       ApplicationReferrerFilterCreateCommand.class,
+                       ApplicationReferrerFilterDeleteCommand.class
                       }, 
         synopsisSubcommandLabel = "COMMAND")
-public class ApplicationKeyCommand implements Runnable {
+public class ApplicationReferrerFiltersCommand implements Runnable {
     @Spec CommandSpec spec;
 
     @Override

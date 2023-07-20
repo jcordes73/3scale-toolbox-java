@@ -1,4 +1,4 @@
-package com.redhat.threescale.toolbox.commands.accounts.applications;
+package com.redhat.threescale.toolbox.commands.accounts.applications.analytics;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Spec;
@@ -6,14 +6,12 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 
 
-@Command(name="referrer-filter", 
+@Command(name="analytics", 
         mixinStandardHelpOptions = true, 
-        subcommands = {ApplicationReferrerFilterListCommand.class,
-                       ApplicationReferrerFilterCreateCommand.class,
-                       ApplicationReferrerFilterDeleteCommand.class
-                      }, 
+        subcommands = {ApplicationAnalyticsUsageCommand.class, 
+                    }, 
         synopsisSubcommandLabel = "COMMAND")
-public class ApplicationReferrerFilterCommand implements Runnable {
+public class ApplicationAnalyticsCommand implements Runnable {
     @Spec CommandSpec spec;
 
     @Override

@@ -1,5 +1,9 @@
 package com.redhat.threescale.toolbox.commands.accounts.applications;
 
+import com.redhat.threescale.toolbox.commands.accounts.applications.analytics.ApplicationAnalyticsCommand;
+import com.redhat.threescale.toolbox.commands.accounts.applications.keys.ApplicationKeysCommand;
+import com.redhat.threescale.toolbox.commands.accounts.applications.referrerfilters.ApplicationReferrerFiltersCommand;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Model.CommandSpec;
@@ -21,8 +25,8 @@ import picocli.CommandLine.ParameterException;
                         ApplicationResumeCommand.class,
                         ApplicationSuspendCommand.class,
                         ApplicationDeleteCommand.class,
-                        ApplicationKeyCommand.class,
-                        ApplicationReferrerFilterCommand.class,
+                        ApplicationKeysCommand.class,
+                        ApplicationReferrerFiltersCommand.class,
                         ApplicationAnalyticsCommand.class
                     }, 
         synopsisSubcommandLabel = "COMMAND")

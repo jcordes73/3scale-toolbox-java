@@ -8,7 +8,7 @@ The **3scale toolbox** is a commandline interface (CLI) tool that allows you to 
 
 To build the 3scale toolbox run
 
-    quarkus build --no-tests
+	quarkus build --no-tests
 
 You can also create a native executable like this
 
@@ -25,25 +25,27 @@ To use configuration based on a file create **3scale-config.properties** in the 
 	threescale.tenant.<tenant-name>.url=<Admin-URL>
 	threescale.tenant.<tenant-name>.access_token=<access-token>
 	threescale.tenant.<tenant-name>.provider_key=<provider-key>
-	
-	
+To get the access-token and the Admin-URL for the default admin instance use this command:
 
+	ACCESS_TOKEN=`oc get secret system-seed -o json | jq -r '.data.ADMIN_ACCESS_TOKEN' | base64 -d`
+
+	ADMIN_HOST=`oc get route | grep 3scale-admin | awk '{print $2}'`
 You can configure multiple tenants in the configuration file by adding additional **threescale.tenant.<tenant-name>** sections, the currently active tenant is defined by the **threescale.tenant** setting.
 
 For commandline based configuration use
 
 	config tenant <tenant-name> <admin-url> --access-token=<access-token>
-
 or
 
 	config tenant <tenant-name> <admin-url> --provider-key=<provider-key>
 
 Right now this configuration is not persisted in 3scale-config.properties. You can also use environment variables on the commandline.
-
-
 ## Run
-
 The toolbox can be used to launch a single command, run multiple commands in batch mode or also in an interactive mode.
+
+For convenience you can also set an alias like this
+
+	alias toolbox="java -jar target/quarkus-app/quarkus-run.jar"
 
 ### Standard mode
 To launch the 3scale toolbox execute
@@ -53,26 +55,13 @@ To launch the 3scale toolbox execute
 You should now see the following options:
 
 	Usage:  [-hV] COMMAND
-	  -h, --help      Show this help message and exit.
-      -V, --version   Print version information and exit.
+  	-h, --help      Show this help message and exit.
+  	-V, --version   Print version information and exit.
 	Commands:
   	  config
-  	  account
-  	  account-plan
-  	  user
-  	  application-plans
-	  application
-	  service
-	  backend
-	  activedocs
-	  authentication
-	  invoice
-	  policy
-	  field-definitions
-	  object
-	  provider
-	  service-plans
-	  webhooks
+  	  services
+  	  accounts
+  	  provider
 ### Batch mode
 To run the toolbox in batch mode add run
 

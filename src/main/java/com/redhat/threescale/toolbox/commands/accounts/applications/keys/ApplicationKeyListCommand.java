@@ -1,4 +1,4 @@
-package com.redhat.threescale.toolbox.commands.accounts.applications;
+package com.redhat.threescale.toolbox.commands.accounts.applications.keys;
 
 import org.jboss.logging.Logger;
 
@@ -11,9 +11,9 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
-public class ApplicationReferrerFilterListCommand implements Runnable {
+public class ApplicationKeyListCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ApplicationReferrerFilterListCommand.class);
+    private static final Logger LOG = Logger.getLogger(ApplicationKeyListCommand.class);
 
     @Spec
     CommandSpec spec;
@@ -30,11 +30,11 @@ public class ApplicationReferrerFilterListCommand implements Runnable {
     @Override
     public void run() {
         try {
-            String response = accountManagementServiceFactory.getAccountManagementService().getApplicationReferrerFilters(accountId, applicationId);
+            String response = accountManagementServiceFactory.getAccountManagementService().getApplicationKeys(accountId, applicationId);
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(),e);
+            LOG.error(e.getMessage(), e);
         }
     }
 }

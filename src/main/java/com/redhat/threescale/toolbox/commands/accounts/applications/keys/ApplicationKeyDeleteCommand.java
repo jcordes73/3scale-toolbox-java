@@ -1,4 +1,4 @@
-package com.redhat.threescale.toolbox.commands.accounts.applications;
+package com.redhat.threescale.toolbox.commands.accounts.applications.keys;
 
 import org.jboss.logging.Logger;
 
@@ -8,27 +8,27 @@ import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name="create", mixinStandardHelpOptions = true)
-public class ApplicationKeyCreateCommand implements Runnable {
+@Command(name="delete", mixinStandardHelpOptions = true)
+public class ApplicationKeyDeleteCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ApplicationKeyCreateCommand.class);
+    private static final Logger LOG = Logger.getLogger(ApplicationKeyDeleteCommand.class);
 
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
     @Parameters(index = "0", description = "Account ID", arity = "1")
-    private int accountId;
+    public int accountId;
 
     @Parameters(index = "1", description = "Application ID", arity = "1")
-    private int applicationId;
+    public int applicationId;
 
     @Parameters(index = "2", description = "Key", arity = "1")
-    private String key;
-    
+    public String key;
+
     @Override
     public void run() {
         try {
-            accountManagementServiceFactory.getAccountManagementService().createApplicationKey(accountId, applicationId, key);           
+            accountManagementServiceFactory.getAccountManagementService().deleteApplicationKey(accountId, applicationId, key);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
