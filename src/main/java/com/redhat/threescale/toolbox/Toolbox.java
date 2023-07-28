@@ -3,19 +3,26 @@ package com.redhat.threescale.toolbox;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.MaskingCallback;
+import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 import com.redhat.threescale.toolbox.commands.accounts.AccountsCommand;
 import com.redhat.threescale.toolbox.commands.config.ConfigCommand;
@@ -77,7 +84,7 @@ public class Toolbox implements Runnable, QuarkusApplication {
         } else if (args.length > 0 && "-i".equals(args[0])) {
             runInteractive(commandLine);
         } else {
-            exitCode = executeLine(commandLine, String.join(" ", args));
+            exitCode = executeLine(new PrintWriter(System.out), commandLine, String.join(" ", args));
         }
 
         return exitCode;
@@ -114,12 +121,14 @@ public class Toolbox implements Runnable, QuarkusApplication {
 
         String line = reader.readLine();
 
+        PrintWriter pw = new PrintWriter(System.out);
+
         while (line != null) {
             if (!line.startsWith("#") && !line.isBlank()){
                 if (line.startsWith("echo")){
                     System.out.println(replaceVariables(line.substring(5)));
                 } else {
-                    exitCode = executeLine(commandLine, line);
+                    exitCode = executeLine(pw, commandLine, line);
                 }
             }
             line = reader.readLine();
@@ -133,28 +142,92 @@ public class Toolbox implements Runnable, QuarkusApplication {
     private int runInteractive(CommandLine commandLine) throws Exception {
         int exitCode = -1;
 
-        Scanner scanner = new Scanner(System.in);
-        
-        System.out.print("3scale>");
-        String line = scanner.nextLine();
+        Terminal terminal = TerminalBuilder.terminal();
+        LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).build();
 
-        while (line != null && !"exit".equals(line)) {
-            if (line.startsWith("echo")){
-                System.out.println(replaceVariables(line.substring(5)));
-            } else {
-                exitCode = executeLine(commandLine, line);
+        String prompt = "3scale>";
+
+        boolean recording = false;
+        FileWriter fw = null;
+
+        while (true){
+            String line = null;
+
+            try {
+                line = lineReader.readLine(prompt);
+
+                if ("exit".equals(line)){
+                    terminal.close();
+                    break;
+                } else if (line.startsWith("echo")){
+                    terminal.writer().print(replaceVariables(line.substring(5)));
+                } else if (!line.startsWith("recording")){
+                    exitCode = executeLine(terminal.writer(), commandLine, line);
+
+                    if (exitCode != 0){
+                        continue;
+                    }
+                }
+
+                if (!line.startsWith("recording") && recording){
+                    String result = lineReader.readLine("3scale>Save line (y/n)? ",null,new MaskingCallback() {
+                        @Override
+                        public String display(String line) {
+                            return line;
+                        }
+
+                        @Override
+                        public String history(String line) {
+                            return null;
+                        }
+                    }, "y");
+                    
+                    if ("y".equals(result)){
+                        if (fw != null){
+                            fw.write(line);
+                            fw.write("\n");
+                        }
+                    }
+                }
+
+                if (line.startsWith("recording start")){
+                    recording = true;
+
+                    if (fw == null){
+                        String[] split = line.split(" ");
+
+                        if (split.length >= 3){
+                            fw = new FileWriter(split[2]);
+                        } else {
+                            terminal.writer().println("Please specify a file name for the recording");    
+                        }
+                    } else {
+                        terminal.writer().println("Already recording, stop recording first");
+                    }
+                } else if (line.startsWith("recording stop")){
+                    recording = false;
+
+                    if (fw != null){
+                        fw.flush();
+                        fw.close();
+
+                        fw = null;
+                    } else {
+                        terminal.writer().println("Not recording, start recording first");
+                    }
+                }
+            } catch (UserInterruptException e){
+            } catch (EndOfFileException e) {
+                return 0;
+            } catch (Exception e){
+                terminal.writer().println(e.getMessage());
             }
-            
-            System.out.print("3scale>");
-            line = scanner.nextLine();
         }
-
-        scanner.close();
 
         return exitCode;
     }
 
-    private int executeLine(CommandLine commandLine, String line) throws Exception {
+    private int executeLine(PrintWriter pw, CommandLine commandLine, String line) throws Exception {
         String toolboxCommand = replaceVariables(line);
 
         String variableName = null;
@@ -192,7 +265,7 @@ public class Toolbox implements Runnable, QuarkusApplication {
         StringWriter sw = new StringWriter();                
         commandLine.setOut(new PrintWriter(sw));
         int exitCode = commandLine.execute(parameters.toArray(new String[parameters.size()]));
-        commandLine.setOut(new PrintWriter(System.out));
+        commandLine.setOut(pw);
 
         String result = sw.toString();
 

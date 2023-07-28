@@ -24,25 +24,18 @@ public class AccessTokenRequestFilter implements ClientRequestFilter {
     public void filter(ClientRequestContext requestContext) {
         String method = requestContext.getMethod();
 
-        if ("post".equalsIgnoreCase(method)||"put".equalsIgnoreCase(method)||"patch".equalsIgnoreCase(method)){
-            MultivaluedHashMap form = (MultivaluedHashMap)requestContext.getEntity();
+        MultivaluedHashMap form = (MultivaluedHashMap)requestContext.getEntity();
 
-            if (form != null){
-                if (!"undefined".equals(accessToken.get()))
-                    form.add("access_token", accessToken.get());
-                else if (!"undefined".equals(providerKey.get()))
-                    form.add("provider_key", providerKey.get());
-            } else {
-                if (!"undefined".equals(accessToken.get()))
-                    requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("access_token", accessToken.get()).build());
-                else if (!"undefined".equals(providerKey.get()))
-                    requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("provider_key", providerKey.get()).build());    
-            }
+        if (form != null){
+            if (!"undefined".equals(accessToken.get()))
+                form.add("access_token", accessToken.get());
+            else if (!"undefined".equals(providerKey.get()))
+                form.add("provider_key", providerKey.get());
         } else {
             if (!"undefined".equals(accessToken.get()))
                 requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("access_token", accessToken.get()).build());
             else if (!"undefined".equals(providerKey.get()))
-                requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("provider_key", providerKey.get()).build());
+                requestContext.setUri(UriBuilder.fromUri(requestContext.getUri()).queryParam("provider_key", providerKey.get()).build());    
         }
     }
 }

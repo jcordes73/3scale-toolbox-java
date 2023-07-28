@@ -1,37 +1,31 @@
 package com.redhat.threescale.toolbox.helpers;
 
-import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Document;
+import org.apache.camel.CamelContext;
+import org.apache.camel.language.xpath.XPathBuilder;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class XPathExecution {
     
-    private DocumentBuilder builder = null;
-    private XPath xPath = null;
+    @Inject
+    CamelContext context;
+
     private Transformer transformer = null;
 
     
     public XPathExecution() throws Exception {
-        builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        xPath = XPathFactory.newInstance().newXPath();
         transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -39,11 +33,8 @@ public class XPathExecution {
     }
 
     public String execute(String content, String xpathExpression) throws Exception {
-        
-        Document xmlDocument = builder.parse(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+        NodeList nodeList = XPathBuilder.xpath(xpathExpression).evaluate(context, content, NodeList.class);
 
-        NodeList nodeList = (NodeList)xPath.compile(xpathExpression).evaluate(xmlDocument, XPathConstants.NODESET);
-        
         StringBuffer result = new StringBuffer();
 
         for (int i=0; i < nodeList.getLength(); i++){

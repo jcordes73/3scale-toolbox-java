@@ -101,7 +101,12 @@ public interface AccountManagementService {
         } else if (response.getStatus() == 404) {
             return new RuntimeException("Entry not found");
         } else if (response.getStatus() == 422) {
-            return new RuntimeException("Malformed request for " + response.getLocation().toString() + ". Response: " + response.getEntity().toString());
+            String responseText = null;
+
+            if (response.hasEntity()){
+                responseText = response.readEntity(String.class);
+            }
+            return new RuntimeException("Malformed request " + responseText);
         } else if (response.getStatus() == 500) {
             return new RuntimeException("The remote service responded with HTTP 500");
         }

@@ -123,3 +123,17 @@ For pretty printing the output run
 For combining variables and filters use the following syntax
 
 	assign variable <VARIABLE_NAME>=<COMMAND>|<FILTER1>|<FILTER2>
+
+#### Recording
+You can record individual commands into a text file, for example for later batch processing
+
+To start recording execute
+```
+recording start <textfile>
+```
+Afterwards on each command you can confirm wheter or not it should be added to the recording
+
+To end the recording enter
+```
+recording stop
+```
