@@ -24,16 +24,31 @@ public class ServicePlanUpdateCommand implements Runnable {
     @Parameters(index = "1", description = "Name", arity = "1")
     public String name;
 
-    @Option(names = {"--approval-required",}, description = "Approval required", defaultValue = Option.NULL_VALUE)
+    @Option(names = {"--approval-required",}, description = "Approval required", defaultValue = Option.NULL_VALUE, negatable = true)
     public Boolean approvalRequired;
 
-    @Option(names = {"--state-even",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}", defaultValue = Option.NULL_VALUE)
+    @Option(names = {"--system-name",}, description = "System name")
+    public String systemName;
+
+    @Option(names = {"--state-event",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
+
+    @Option(names = {"--cost-per-month",}, description = "Cost per month")
+    public Float costPerMonth;
+
+    @Option(names = {"--setup-fee",}, description = "Setup fee")
+    public Float setupFee;
+
+    @Option(names = {"--trial-period-days",}, description = "Trial period in days.")
+    public Integer trialPeriodDays;
+    
+    @Option(names = {"--cancellation-period",}, description = "Cancellation period in days.")
+    public Integer cancellationPeriod;
     
     @Override
     public void run() {
         try {
-            accountManagementServiceFactory.getAccountManagementService().updateServicePlan(serviceId, serviceId, name, approvalRequired, stateEvent);
+            accountManagementServiceFactory.getAccountManagementService().updateServicePlan(serviceId, serviceId, name, approvalRequired, stateEvent, setupFee, costPerMonth, trialPeriodDays, cancellationPeriod);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

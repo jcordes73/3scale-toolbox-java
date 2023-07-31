@@ -89,6 +89,14 @@ public interface AccountManagementService {
         liquid
     }
 
+    enum BuyerChangePlanPermission {
+        request,
+        direct,
+        credit_card,
+        request_credit_card,
+        none
+    }
+
     @ClientExceptionMapper
     static RuntimeException toException(Response response) {
 
@@ -1320,7 +1328,16 @@ public interface AccountManagementService {
         @FormParam("description") String description,
         @FormParam("deployment_option") DeploymentOption deploymentOption,
         @FormParam("backend_version") String authenticationMode,
-        @FormParam("system_name") String system_name
+        @FormParam("system_name") String system_name,
+        @FormParam("intentions_required") Boolean intentionsRequired,
+        @FormParam("buyers_manage_apps") Boolean buyersManageApps,
+        @FormParam("buyers_manage_keys") Boolean buyersManageKeys,
+        @FormParam("referrer_filters_required") Boolean referrerFiltersRequired,
+        @FormParam("custom_keys_enabled") Boolean customKeysEnabled,
+        @FormParam("buyer_key_regenerate_enabled") Boolean buyerKeyRegenerateEnabled,
+        @FormParam("mandatory_app_key") Boolean mandatoryAppKey,
+        @FormParam("buyer_can_select_plan") Boolean buyerCanSelectPlan,
+        @FormParam("buyer_plan_change_permission") BuyerChangePlanPermission buyer_plan_change_permission
     );
 
     @GET
@@ -1339,7 +1356,15 @@ public interface AccountManagementService {
         @FormParam("description") String description,
         @FormParam("deployment_option") DeploymentOption deploymentOption,
         @FormParam("backend_version") String authenticationMode,
-        @FormParam("system_name") String system_name
+        @FormParam("system_name") String system_name,
+        @FormParam("buyers_manage_apps") Boolean buyersManageApps,
+        @FormParam("buyers_manage_keys") Boolean buyersManageKeys,
+        @FormParam("referrer_filters_required") Boolean referrerFiltersRequired,
+        @FormParam("custom_keys_enabled") Boolean customKeysEnabled,
+        @FormParam("buyer_key_regenerate_enabled") Boolean buyerKeyRegenerateEnabled,
+        @FormParam("mandatory_app_key") Boolean mandatoryAppKey,
+        @FormParam("buyer_can_select_plan") Boolean buyerCanSelectPlan,
+        @FormParam("buyer_plan_change_permission") BuyerChangePlanPermission buyer_plan_change_permission
     );
 
     @DELETE
@@ -1364,7 +1389,11 @@ public interface AccountManagementService {
         @FormParam("name") String name,
         @FormParam("approval_required") Boolean approvalRequired,
         @FormParam("system_name") String systenName,
-        @FormParam("state_event") StateEvent stateEvent
+        @FormParam("state_event") StateEvent stateEvent,
+        @FormParam("setup_fee") Float setupFee,
+        @FormParam("cost_per_month") Float costPerMonth,
+        @FormParam("trial_period_days") Integer trialPeriodDays,
+        @FormParam("cancellation_period") Integer cancellationPeriod
     );
 
     @GET
@@ -1383,7 +1412,11 @@ public interface AccountManagementService {
         @PathParam("servicePlanId") int servicePlanId,
         @FormParam("name") String name,
         @FormParam("approval_required") Boolean approvalRequired,
-        @FormParam("state_event") StateEvent stateEvent
+        @FormParam("state_event") StateEvent stateEvent,
+        @FormParam("setup_fee") Float setupFee,
+        @FormParam("cost_per_month") Float costPerMonth,
+        @FormParam("trial_period_days") Integer trialPeriodDays,
+        @FormParam("cancellation_period") Integer cancellationPeriod
     );
 
     @GET
