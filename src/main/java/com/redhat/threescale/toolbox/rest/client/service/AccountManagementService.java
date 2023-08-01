@@ -822,7 +822,8 @@ public interface AccountManagementService {
         @FormParam("cost_per_month") Float costPerMonth,
         @FormParam("setup_fee") Float setupFee,
         @FormParam("trial_period_days") Integer trialPeriodDays,
-        @FormParam("state_event") StateEvent stateEvent
+        @FormParam("state_event") StateEvent stateEvent,
+        @FormParam("cancellation_period") Integer cancellationPeriod
     );
 
     @GET
@@ -844,7 +845,8 @@ public interface AccountManagementService {
         @FormParam("cost_per_month") Float costPerMonth,
         @FormParam("setup_fee") Float setupFee,
         @FormParam("trial_period_days") int trialPeriodDays,
-        @FormParam("state_event") StateEvent stateEvent
+        @FormParam("state_event") StateEvent stateEvent,
+        @FormParam("cancellation_period") Integer cancellationPeriod
     );
 
     @DELETE

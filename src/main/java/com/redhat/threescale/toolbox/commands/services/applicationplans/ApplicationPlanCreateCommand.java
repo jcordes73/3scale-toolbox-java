@@ -37,13 +37,17 @@ public class ApplicationPlanCreateCommand implements Runnable {
     @Option(names = {"--trial-period-days",}, description = "Trial period in days.")
     public Integer trialPeriodDays;
 
+    @Option(names = {"--cancellation-period",}, description = "Cancellation period in days.")
+    public Integer cancellationPeriod;
+
+
     @Option(names = {"--state-event",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
 
     @Override
     public void run() {
         try {
-            accountManagementServiceFactory.getAccountManagementService().createServiceApplicationPlan(serviceId, applicationPlanName, approvalRequired, costPerMonth, setupFee, trialPeriodDays, stateEvent);
+            accountManagementServiceFactory.getAccountManagementService().createServiceApplicationPlan(serviceId, applicationPlanName, approvalRequired, costPerMonth, setupFee, trialPeriodDays, stateEvent, cancellationPeriod);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }        

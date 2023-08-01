@@ -43,10 +43,13 @@ public class ApplicationPlanUpdateCommand implements Runnable {
     @Option(names = {"--state-event",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
 
+    @Option(names = {"--cancellation-period",}, description = "Cancellation period in days.")
+    public Integer cancellationPeriod;
+
     @Override
     public void run() {
         try {
-            accountManagementServiceFactory.getAccountManagementService().updateServiceApplicationPlan(serviceId, applicationPlanId, applicationPlanName, approvalRequired, costPerMonth, setupFee, applicationPlanId, stateEvent);
+            accountManagementServiceFactory.getAccountManagementService().updateServiceApplicationPlan(serviceId, applicationPlanId, applicationPlanName, approvalRequired, costPerMonth, setupFee, applicationPlanId, stateEvent, cancellationPeriod);
          } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

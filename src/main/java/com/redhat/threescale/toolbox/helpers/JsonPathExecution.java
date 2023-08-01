@@ -26,6 +26,8 @@ public class JsonPathExecution {
         }
 
         JsonPathLanguage jsonPathLanguage= new JsonPathLanguage();
+        jsonPathLanguage.setWriteAsString(true);
+        jsonPathLanguage.setUnpackArray(true);
         Expression expr = jsonPathLanguage.createExpression(expression);
 
         return expr.evaluate(exchange, String.class);
