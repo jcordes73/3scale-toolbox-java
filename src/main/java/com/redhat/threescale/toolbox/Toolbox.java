@@ -29,6 +29,7 @@ import com.redhat.threescale.toolbox.commands.config.ConfigCommand;
 import com.redhat.threescale.toolbox.commands.provider.ProviderCommand;
 import com.redhat.threescale.toolbox.commands.services.ServicesCommand;
 import com.redhat.threescale.toolbox.config.ThreescaleConfigSource;
+import com.redhat.threescale.toolbox.helpers.JsonPathExecution;
 import com.redhat.threescale.toolbox.helpers.JsonToXmlConverter;
 import com.redhat.threescale.toolbox.helpers.XPathExecution;
 
@@ -61,6 +62,9 @@ public class Toolbox implements Runnable, QuarkusApplication {
 
     @Inject
     JsonToXmlConverter jsonToXmlConverter;
+
+    @Inject
+    JsonPathExecution jsonpathExecution;
 
     private HashMap<String,String> variables = new HashMap<String,String>();
     
@@ -285,8 +289,15 @@ public class Toolbox implements Runnable, QuarkusApplication {
                     String xpathQuery = filter.substring(6);
 
                     result = xPathExecution.execute(result, xpathQuery);
+                } else if (filter.startsWith("jsonpath")){
+                    String jsonpathQuery = filter.substring(9);
+
+                    result = jsonpathExecution.execute(result, jsonpathQuery);
                 } else if (filter.startsWith("prettyprint")){
-                    result = xPathExecution.prettyPrint(result);
+                    if (result.startsWith("<"))
+                        result = xPathExecution.prettyPrint(result);
+                    else if (result.startsWith("{"))
+                        result = jsonpathExecution.prettyPrint(result);
                 } else if (filter.startsWith("json2xml")){
                     result = jsonToXmlConverter.convert(result);
                 }

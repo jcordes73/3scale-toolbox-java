@@ -62,6 +62,10 @@
       <artifactId>camel-quarkus-xpath</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.camel.quarkus</groupId>
+      <artifactId>camel-quarkus-jsonpath</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.swagger.parser.v3</groupId>
       <artifactId>swagger-parser</artifactId>
       <version>2.1.13</version>

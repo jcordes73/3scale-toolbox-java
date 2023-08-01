@@ -101,29 +101,29 @@ You can also apply filters to a result of a command like this
 
 	<COMMAND>|<FILTER>
 
-Currently supported filters are **xpath**, **prettyprint** and **json2xml**.
+Currently supported filters are **xpath**, **jsonpath**, **prettyprint** and **json2xml**.
 
 You can also specify more than one filter
 
 	<COMMAND>|<FILTER1>|<FILTER2>
 
 for example for converting json to xml and then applying xpath.
-
 ##### XPath
 To apply an xpath filter specify the filter like this
 
 	<COMMAND>|xpath <XPATH_EXPRESSION>
+##### Jsonpath
+To apply an jsonpath filter specify the filter like this
 
+	<COMMAND>|jsonpath <JSONPATH_EXPRESSION>
 ##### Prettyprint
 For pretty printing the output run
 
 	<COMMAND>|prettyprint
-
 ### Variables and Filters
 For combining variables and filters use the following syntax
 
 	assign variable <VARIABLE_NAME>=<COMMAND>|<FILTER1>|<FILTER2>
-
 #### Recording
 You can record individual commands into a text file, for example for later batch processing
 
