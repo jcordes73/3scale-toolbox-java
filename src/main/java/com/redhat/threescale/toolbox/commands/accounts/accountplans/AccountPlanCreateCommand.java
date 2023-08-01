@@ -30,12 +30,25 @@ public class AccountPlanCreateCommand implements Runnable {
 
     @Option(names = {"--state-event",}, description = "State event. Valid values: ${COMPLETION-CANDIDATES}")
     public AccountManagementService.StateEvent stateEvent;
+
+    @Option(names = {"--cost-per-month",}, description = "Cost per month")
+    public Float costPerMonth;
+
+    @Option(names = {"--setup-fee",}, description = "Setup fee")
+    public Float setupFee;
+
+    @Option(names = {"--trial-period-days",}, description = "Trial period in days.")
+    public Integer trialPeriodDays;
+    
+    @Option(names = {"--cancellation-period",}, description = "Cancellation period in days.")
+    public Integer cancellationPeriod;
+
     
     @Override
     public void run() {
 
         try {
-            accountManagementServiceFactory.getAccountManagementService().createAccountPlan(name, approvalRequired, systemName, stateEvent);
+            accountManagementServiceFactory.getAccountManagementService().createAccountPlan(name, approvalRequired, systemName, stateEvent, setupFee, costPerMonth, trialPeriodDays, cancellationPeriod);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

@@ -591,7 +591,11 @@ public interface AccountManagementService {
         @FormParam("name") String name,
         @FormParam("approval_required") boolean permission,
         @FormParam("system_name") String systemName,
-        @FormParam("state_event") StateEvent stateEvent
+        @FormParam("state_event") StateEvent stateEvent,
+        @FormParam("setup_fee") Float setupFee,
+        @FormParam("cost_per_month") Float costPerMonth,
+        @FormParam("trial_period_days") Integer trialPeriodDays,
+        @FormParam("cancellation_period") Integer cancellationPeriod
     );
 
     @GET
@@ -630,7 +634,11 @@ public interface AccountManagementService {
         @PathParam("accountPlanId") int accountPlanId,
         @FormParam("name") String name,
         @FormParam("approval_requited") boolean permission,
-        @FormParam("state_event") String stateEvent
+        @FormParam("state_event") String stateEvent,
+        @FormParam("setup_fee") Float setupFee,
+        @FormParam("cost_per_month") Float costPerMonth,
+        @FormParam("trial_period_days") Integer trialPeriodDays,
+        @FormParam("cancellation_period") Integer cancellationPeriod
     );
 
     @DELETE
