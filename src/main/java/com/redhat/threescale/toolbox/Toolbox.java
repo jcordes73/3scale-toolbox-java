@@ -6,21 +6,28 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.jline.console.SystemRegistry;
+import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.MaskingCallback;
+import org.jline.reader.Parser;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -39,6 +46,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.shell.jline3.PicocliCommands;
 
 @QuarkusMain
 @TopCommand
@@ -146,9 +154,19 @@ public class Toolbox implements Runnable, QuarkusApplication {
     private int runInteractive(CommandLine commandLine) throws Exception {
         int exitCode = -1;
 
-        Terminal terminal = TerminalBuilder.terminal();
-        LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).build();
+        Supplier<Path> workDir = () -> Paths.get(System.getProperty("user.dir"));
 
+        Parser parser = new DefaultParser();
+
+        PicocliCommands picocliCommands = new PicocliCommands(commandLine);
+        Terminal terminal = TerminalBuilder.builder().build();
+
+        SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, workDir, null);
+		systemRegistry.setCommandRegistries(picocliCommands);
+		systemRegistry.register("help", picocliCommands);
+
+        LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).completer(systemRegistry.completer()).parser(parser).variable(LineReader.LIST_MAX, 50).build();
+        
         String prompt = "3scale>";
 
         boolean recording = false;
