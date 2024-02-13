@@ -36,7 +36,7 @@ public class BackendCreateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().createBackend(name, systemName, description, privateEndpoint);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error(e.getMessage());
         }        
     }
 }

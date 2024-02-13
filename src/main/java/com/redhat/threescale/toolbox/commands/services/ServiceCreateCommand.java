@@ -67,7 +67,7 @@ public class ServiceCreateCommand implements Runnable {
             accountManagementServiceFactory.getAccountManagementService().createService(name, description, deploymentOption, authenticationMode, systemName, intentionsRequired, buyersManageApps, buyersManageKeys, referrerFiltersRequired, customKeysEnabled, buyerKeyGenerateEnabled, mandatoryAppKey, buyerCanSelectPlan, buyerChangePlanPermission);
 
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error(e.getMessage());
         }
     }
 }

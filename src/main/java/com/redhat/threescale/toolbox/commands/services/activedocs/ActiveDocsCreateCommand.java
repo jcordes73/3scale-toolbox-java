@@ -1,5 +1,6 @@
 package com.redhat.threescale.toolbox.commands.services.activedocs;
 
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -11,12 +12,14 @@ import java.util.Map.Entry;
 
 import org.jboss.logging.Logger;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.redhat.threescale.toolbox.helpers.XPathExecution;
 import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import io.swagger.parser.OpenAPIParser;
+import io.swagger.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
@@ -28,14 +31,19 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
 public class ActiveDocsCreateCommand implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(ActiveDocsCreateCommand.class);
+
+    @Spec
+    CommandSpec spec;
 
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
@@ -67,6 +75,8 @@ public class ActiveDocsCreateCommand implements Runnable {
     @Override
     public void run() {
 
+        PrintWriter out = spec.commandLine().getOut();
+        
         try {
             String body = null;
             
@@ -78,11 +88,13 @@ public class ActiveDocsCreateCommand implements Runnable {
             } else {
                 body = Files.readString(java.nio.file.Paths.get(swaggerFile));
             }
- 
-            accountManagementServiceFactory.getAccountManagementService().createActiveDocs(name, systemName, serviceId, body, description, published, skipSwaggerValidation);
 
-            SwaggerParseResult swaggerParseResult = new OpenAPIParser().readContents(body, null, null);
-            OpenAPI openApi = swaggerParseResult.getOpenAPI();
+            SwaggerParseResult result = new OpenAPIParser().readContents(body, null, null);
+            OpenAPI openApi = result.getOpenAPI();
+
+            if (result.getMessages() != null) result.getMessages().forEach(out::println);
+
+            accountManagementServiceFactory.getAccountManagementService().createActiveDocs(name, systemName, serviceId, body, description, published, skipSwaggerValidation);
 
             setSecurity(openApi);
 
@@ -103,8 +115,12 @@ public class ActiveDocsCreateCommand implements Runnable {
                 createMethodAndMappingRules(path, "PATCH", entry.getValue().getPatch(), serviceId.intValue(), metricId, unit);
             }            
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }        
+            //LOG.error(e.getMessage());
+            out.println(e.getMessage());
+        } finally {
+            if (out != null)
+                out.close();
+        }      
     }
 
     public void createMethodAndMappingRules(String path, String httpMethod, Operation operation, int serviceId, int metricId, String unit) throws Exception{
@@ -120,29 +136,31 @@ public class ActiveDocsCreateCommand implements Runnable {
     }
 
     public void setSecurity(OpenAPI openApi) throws Exception {
-        for (Iterator<SecurityRequirement> securityIt = openApi.getSecurity().iterator(); securityIt.hasNext();){
-            SecurityRequirement securityRequirement = securityIt.next();
+        if (openApi.getSecurity() != null){
+            for (Iterator<SecurityRequirement> securityIt = openApi.getSecurity().iterator(); securityIt.hasNext();){
+                SecurityRequirement securityRequirement = securityIt.next();
 
-            for (Iterator<Entry<String, List<String>>> securityEntryIt = securityRequirement.entrySet().iterator(); securityEntryIt.hasNext();){
-                Entry<String,List<String>> entry = securityEntryIt.next();
+                for (Iterator<Entry<String, List<String>>> securityEntryIt = securityRequirement.entrySet().iterator(); securityEntryIt.hasNext();){
+                    Entry<String,List<String>> entry = securityEntryIt.next();
 
-                String componentName = entry.getKey();
+                    String componentName = entry.getKey();
 
-                if (openApi.getComponents().getSecuritySchemes().containsKey(componentName)){
-                    SecurityScheme securityScheme = openApi.getComponents().getSecuritySchemes().get(componentName);
+                    if (openApi.getComponents().getSecuritySchemes().containsKey(componentName)){
+                        SecurityScheme securityScheme = openApi.getComponents().getSecuritySchemes().get(componentName);
 
-                    Type type = securityScheme.getType();
-                    String name = securityScheme.getName();
+                        Type type = securityScheme.getType();
+                        String name = securityScheme.getName();
 
-                    if (type.equals(Type.APIKEY)){
-                        if (securityScheme.getIn().equals(securityScheme.getIn().HEADER)){
-                            accountManagementServiceFactory.getAccountManagementService().updateServiceProxy(serviceId.intValue(), null, null, AccountManagementService.CredentialsLocation.headers, null, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-                        } else if (securityScheme.getIn().equals(securityScheme.getIn().QUERY)){
-                            accountManagementServiceFactory.getAccountManagementService().updateServiceProxy(serviceId.intValue(), null, null, AccountManagementService.CredentialsLocation.query, null, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                        if (type.equals(Type.APIKEY)){
+                            if (securityScheme.getIn().equals(securityScheme.getIn().HEADER)){
+                                accountManagementServiceFactory.getAccountManagementService().updateServiceProxy(serviceId.intValue(), null, null, AccountManagementService.CredentialsLocation.headers, null, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                            } else if (securityScheme.getIn().equals(securityScheme.getIn().QUERY)){
+                                accountManagementServiceFactory.getAccountManagementService().updateServiceProxy(serviceId.intValue(), null, null, AccountManagementService.CredentialsLocation.query, null, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                            }
+                        } else if (type.equals(Type.OPENIDCONNECT)){
+                            String openIdConnectUrl = securityScheme.getOpenIdConnectUrl();
+                            accountManagementServiceFactory.getAccountManagementService().updateServiceProxy(serviceId.intValue(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, openIdConnectUrl, "keycloak", null, null, null);
                         }
-                    } else if (type.equals(Type.OPENIDCONNECT)){
-                        String openIdConnectUrl = securityScheme.getOpenIdConnectUrl();
-                        accountManagementServiceFactory.getAccountManagementService().updateServiceProxy(serviceId.intValue(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, openIdConnectUrl, "keycloak", null, null, null);
                     }
                 }
             }

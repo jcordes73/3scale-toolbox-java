@@ -31,7 +31,7 @@ public class BackendUsageCreateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().createBackendUsage(serviceId, backendId, path);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error(e.getMessage());
         }        
     }
 }

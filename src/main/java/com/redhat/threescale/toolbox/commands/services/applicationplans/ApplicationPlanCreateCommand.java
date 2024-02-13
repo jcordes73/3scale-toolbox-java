@@ -49,7 +49,7 @@ public class ApplicationPlanCreateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().createServiceApplicationPlan(serviceId, applicationPlanName, approvalRequired, costPerMonth, setupFee, trialPeriodDays, stateEvent, cancellationPeriod);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error(e.getMessage());
         }        
     }
 }

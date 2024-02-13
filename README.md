@@ -34,12 +34,17 @@ You can configure multiple tenants in the configuration file by adding additiona
 
 For commandline based configuration use
 
-	config tenant <tenant-name> <admin-url> --access-token=<access-token>
+	config tenants create <tenant-name> <admin-url> --access-token=<access-token>
 or
 
-	config tenant <tenant-name> <admin-url> --provider-key=<provider-key>
+	config tenants create <tenant-name> <admin-url> --provider-key=<provider-key>
 
-Right now this configuration is not persisted in 3scale-config.properties. You can also use environment variables on the commandline.
+Right now this configuration is not persisted in 3scale-config.properties. You can also use environment variables on the commandline, please make sure to **export** them first:
+
+	export ADMIN_HOST
+	export ACCESS_TOKEN
+
+	config tenants create admin https://${ADMIN_HOST} --access-token=${ACCESS_TOKEN}
 ## Run
 The toolbox can be used to launch a single command, run multiple commands in batch mode or also in an interactive mode.
 
