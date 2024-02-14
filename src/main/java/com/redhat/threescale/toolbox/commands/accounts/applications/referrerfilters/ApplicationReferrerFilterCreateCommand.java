@@ -1,18 +1,17 @@
 package com.redhat.threescale.toolbox.commands.accounts.applications.referrerfilters;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="create", mixinStandardHelpOptions = true)
-public class ApplicationReferrerFilterCreateCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ApplicationReferrerFilterCreateCommand.class);
-
+public class ApplicationReferrerFilterCreateCommand implements Runnable {    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -30,7 +29,7 @@ public class ApplicationReferrerFilterCreateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().createApplicationReferrerFilter(accountId, applicationId, referrerFilter);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

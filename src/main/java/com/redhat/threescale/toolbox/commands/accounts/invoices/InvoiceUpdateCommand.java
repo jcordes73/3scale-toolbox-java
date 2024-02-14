@@ -1,19 +1,18 @@
 package com.redhat.threescale.toolbox.commands.accounts.invoices;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.BillingServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="update", mixinStandardHelpOptions = true)
-public class InvoiceUpdateCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(InvoiceUpdateCommand.class);
-
+public class InvoiceUpdateCommand implements Runnable {    @Spec
+    CommandSpec spec;
+    
     @Inject
     BillingServiceFactory billingServiceFactory;
 
@@ -31,7 +30,7 @@ public class InvoiceUpdateCommand implements Runnable {
         try {
             billingServiceFactory.getBillingService().updateInvoice(invoiceId, period, friendlyId);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

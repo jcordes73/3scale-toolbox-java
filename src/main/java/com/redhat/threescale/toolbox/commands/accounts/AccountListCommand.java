@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.accounts;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -12,11 +10,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
-public class AccountListCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(AccountListCommand.class);
-
-    @Spec
+public class AccountListCommand implements Runnable {    @Spec
     CommandSpec spec;
     
     @Inject
@@ -37,7 +31,7 @@ public class AccountListCommand implements Runnable {
             String response = accountManagementServiceFactory.getAccountManagementService().getAccounts(state, page, perPage);
             spec.commandLine().getOut().println(response);
         } catch (Exception e){
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

@@ -1,18 +1,19 @@
 package com.redhat.threescale.toolbox.commands.provider.account;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
 
 @Command(name="update", mixinStandardHelpOptions = true)
 public class ProviderAccountUpdateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ProviderAccountUpdateCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -33,7 +34,7 @@ public class ProviderAccountUpdateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().updateProvider(fromEmail, supportEmail, financeSupportEmail, siteAccessCode);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

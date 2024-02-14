@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.metrics;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -13,8 +11,6 @@ import picocli.CommandLine.Spec;
 @Command(name="list", mixinStandardHelpOptions = true)
 public class ServiceMetricsListCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ServiceMetricsListCommand.class);
- 
     @Spec
     CommandSpec spec;
     
@@ -31,7 +27,7 @@ public class ServiceMetricsListCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

@@ -1,20 +1,21 @@
 package com.redhat.threescale.toolbox.commands.accounts.users;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Email;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
 public class AccountUserCreateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(AccountUserCreateCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -37,7 +38,7 @@ public class AccountUserCreateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().createAccountUser(accountId, userName, email, password);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
         
     }

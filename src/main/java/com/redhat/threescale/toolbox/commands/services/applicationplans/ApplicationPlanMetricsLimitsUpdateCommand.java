@@ -1,19 +1,20 @@
 package com.redhat.threescale.toolbox.commands.services.applicationplans;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="update", mixinStandardHelpOptions = true)
 public class ApplicationPlanMetricsLimitsUpdateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ApplicationPlanMetricsLimitsUpdateCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -37,7 +38,7 @@ public class ApplicationPlanMetricsLimitsUpdateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().updateApplicationPlanMetricLimit(applicationPlanId, metricId, limitId, value, period);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

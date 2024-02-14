@@ -1,12 +1,9 @@
 package com.redhat.threescale.toolbox.commands.accounts.applications.analytics;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AnalyticsService;
 import com.redhat.threescale.toolbox.rest.client.service.AnalyticsServiceFactory;
 
 import jakarta.inject.Inject;
-import jakarta.validation.constraints.Pattern;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -15,8 +12,6 @@ import picocli.CommandLine.Spec;
 
 @Command(name="usage", mixinStandardHelpOptions = true)
 public class ApplicationAnalyticsUsageCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ApplicationAnalyticsUsageCommand.class);
 
     @Spec
     CommandSpec spec;
@@ -59,7 +54,7 @@ public class ApplicationAnalyticsUsageCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

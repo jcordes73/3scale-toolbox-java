@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.features;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -13,7 +11,7 @@ import picocli.CommandLine.Spec;
 @Command(name="delete", mixinStandardHelpOptions = true)
 public class ServiceFeatureDeleteCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ServiceFeatureDeleteCommand.class);
+    
  
     @Spec
     CommandSpec spec;
@@ -32,7 +30,7 @@ public class ServiceFeatureDeleteCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().deleteServiceFeature(serviceId, serviceFeatureId);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

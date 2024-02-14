@@ -1,6 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services;
 
-import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
@@ -8,13 +7,16 @@ import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServic
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="create", mixinStandardHelpOptions = true)
 public class ServiceCreateCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ServiceCreateCommand.class);
+    
+    @Spec
+    CommandSpec spec;
     
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
@@ -67,7 +69,7 @@ public class ServiceCreateCommand implements Runnable {
             accountManagementServiceFactory.getAccountManagementService().createService(name, description, deploymentOption, authenticationMode, systemName, intentionsRequired, buyersManageApps, buyersManageKeys, referrerFiltersRequired, customKeysEnabled, buyerKeyGenerateEnabled, mandatoryAppKey, buyerCanSelectPlan, buyerChangePlanPermission);
 
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

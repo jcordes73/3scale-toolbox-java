@@ -1,19 +1,20 @@
 package com.redhat.threescale.toolbox.commands.provider.tenants;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.MasterServiceFactory;
 
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Email;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="create", mixinStandardHelpOptions = true)
 public class ProviderTenantCreateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(ProviderTenantCreateCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     MasterServiceFactory masterServiceFactory;
 
@@ -35,7 +36,7 @@ public class ProviderTenantCreateCommand implements Runnable {
         try {
             masterServiceFactory.getMasterService().createTenant(orgName, userName, email, password);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

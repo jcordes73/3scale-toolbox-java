@@ -1,6 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.backends;
 
-import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -13,11 +12,9 @@ import picocli.CommandLine.Model.CommandSpec;
 @Command(name="get", mixinStandardHelpOptions = true)
 public class BackendUsageGetCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(BackendUsageGetCommand.class);
-
     @Spec
     CommandSpec spec;
-    
+
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -34,7 +31,7 @@ public class BackendUsageGetCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

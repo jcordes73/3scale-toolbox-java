@@ -1,20 +1,19 @@
 package com.redhat.threescale.toolbox.commands.services.backends;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 
 @Command(name="update", mixinStandardHelpOptions = true)
-public class BackendMappingRuleUpdateCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(BackendMappingRuleUpdateCommand.class);
-
+public class BackendMappingRuleUpdateCommand implements Runnable {    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -47,7 +46,7 @@ public class BackendMappingRuleUpdateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().updateBackendMappingRule(backendId, mappingRuleId, httpMethod, pattern, delta, metricId, position, last);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

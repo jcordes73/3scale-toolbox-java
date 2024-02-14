@@ -1,17 +1,18 @@
 package com.redhat.threescale.toolbox.commands.accounts.accountplans;
 
-import org.jboss.logging.Logger;
-
-import com.redhat.threescale.toolbox.commands.accounts.AccountCreateCommand;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="change", mixinStandardHelpOptions = true)
 public class AccountPlanChangeCommand implements Runnable {
-    private static final Logger LOG = Logger.getLogger(AccountCreateCommand.class);
+    
+    @Spec
+    CommandSpec spec;
     
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
@@ -27,7 +28,7 @@ public class AccountPlanChangeCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().accountChangePlan(accountId, planId);
         } catch (Exception e){
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

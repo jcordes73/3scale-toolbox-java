@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.backends;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -12,9 +10,7 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
-public class BackendMappingRulesListCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(BackendMappingRulesListCommand.class);
+public class BackendMappingRulesListCommand implements Runnable { 
 
     @Spec
     CommandSpec spec;
@@ -38,7 +34,7 @@ public class BackendMappingRulesListCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 

@@ -1,18 +1,19 @@
 package com.redhat.threescale.toolbox.commands.accounts.creditcards;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="set", mixinStandardHelpOptions = true)
 public class AccountSetCreditCardCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(AccountSetCreditCardCommand.class);
+    @Spec
+    CommandSpec spec;
     
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
@@ -61,7 +62,7 @@ public class AccountSetCreditCardCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().accountSetCreditCard(accountId, creditCardToken, creditCardAuthorizeNetPaymentProfileToken, creditCardExpirationYear, creditCardExpirationMonth, billingAddressName, billingAddressAddress, billingAddressCity, billingAddressCountry, billingAddressState, billingAddressPhone, billingAddressZip, creditCardPartialNumber);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

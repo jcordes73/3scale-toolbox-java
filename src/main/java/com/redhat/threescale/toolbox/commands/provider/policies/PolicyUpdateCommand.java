@@ -3,20 +3,21 @@ package com.redhat.threescale.toolbox.commands.provider.policies;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.PolicyRegistryServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 import picocli.CommandLine.Option;
 
 @Command(name="update", mixinStandardHelpOptions = true)
 public class PolicyUpdateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(PolicyCreateCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     PolicyRegistryServiceFactory policyRegistryServiceFactory;
 
@@ -43,7 +44,7 @@ public class PolicyUpdateCommand implements Runnable {
 
             policyRegistryServiceFactory.getPolicyRegistryService().updatePolicy(policyId, schema, schema, schema, schema);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

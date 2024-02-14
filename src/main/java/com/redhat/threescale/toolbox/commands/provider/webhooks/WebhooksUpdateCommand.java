@@ -1,17 +1,18 @@
 package com.redhat.threescale.toolbox.commands.provider.webhooks;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
 
 @Command(name="update", mixinStandardHelpOptions = true)
 public class WebhooksUpdateCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(WebhooksUpdateCommand.class);
+    @Spec
+    CommandSpec spec;
     
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
@@ -78,7 +79,7 @@ public class WebhooksUpdateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().updateWebhooks(url, active, providerActions, accountCreatedOn, accountUpdatedOn, accountDeletedOn, userCreatedOn, userUpdatedOn, userDeletedOn, applicationCreatedOn, applicationUpdatedOn, applicationDeletedOn, accountPlanChangedOn, applicationPlanChangedOn, applicationUserKeyUpdatedOn, applicationKeyCreatedOn, applicationKeyDeletedOn, applicationSuspendedOn, applicationKeyUpdatedOn);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

@@ -1,18 +1,19 @@
 package com.redhat.threescale.toolbox.commands.accounts;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="approve", mixinStandardHelpOptions = true)
 public class AccountApproveCommand implements Runnable {
-    private static final Logger LOG = Logger.getLogger(AccountCreateCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
     
@@ -24,7 +25,7 @@ public class AccountApproveCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().approveAccount(accountId);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

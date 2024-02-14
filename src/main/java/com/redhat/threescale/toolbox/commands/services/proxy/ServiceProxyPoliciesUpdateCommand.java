@@ -3,7 +3,6 @@ package com.redhat.threescale.toolbox.commands.services.proxy;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.jboss.logging.Logger;
 
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -15,8 +14,6 @@ import picocli.CommandLine.Spec;
 
 @Command(name="update", mixinStandardHelpOptions = true)
 public class ServiceProxyPoliciesUpdateCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ServiceProxyPoliciesUpdateCommand.class);
 
     @Spec
     CommandSpec spec;
@@ -37,7 +34,7 @@ public class ServiceProxyPoliciesUpdateCommand implements Runnable {
 
             accountManagementServiceFactory.getAccountManagementService().updateServiceProxyPolicies(serviceId, policiesConfig);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

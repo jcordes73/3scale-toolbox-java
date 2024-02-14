@@ -10,16 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.jboss.logging.Logger;
-
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.redhat.threescale.toolbox.helpers.XPathExecution;
 import com.redhat.threescale.toolbox.picocli.QuotedStringConverter;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import io.swagger.parser.OpenAPIParser;
-import io.swagger.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
@@ -38,10 +34,8 @@ import picocli.CommandLine.Spec;
 
 
 @Command(name="create", mixinStandardHelpOptions = true)
-public class ActiveDocsCreateCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ActiveDocsCreateCommand.class);
-
+public class ActiveDocsCreateCommand implements Runnable {    
+    
     @Spec
     CommandSpec spec;
 

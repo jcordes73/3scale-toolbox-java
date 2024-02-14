@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.proxy;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -13,8 +11,6 @@ import picocli.CommandLine.Spec;
 
 @Command(name="version", mixinStandardHelpOptions = true)
 public class ServiceProxyConfigVersionCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ServiceProxyConfigVersionCommand.class);
 
     @Spec
     CommandSpec spec;
@@ -38,7 +34,7 @@ public class ServiceProxyConfigVersionCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

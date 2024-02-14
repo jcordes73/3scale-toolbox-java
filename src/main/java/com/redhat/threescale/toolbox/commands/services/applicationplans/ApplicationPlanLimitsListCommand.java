@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.applicationplans;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -13,9 +11,7 @@ import picocli.CommandLine.Spec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
 public class ApplicationPlanLimitsListCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ApplicationPlanLimitsListCommand.class);
-
+    
     @Spec
     CommandSpec spec;
     
@@ -39,7 +35,7 @@ public class ApplicationPlanLimitsListCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

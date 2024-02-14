@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.accounts.invoices;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.BillingServiceFactory;
 
 import jakarta.inject.Inject;
@@ -12,8 +10,6 @@ import picocli.CommandLine.Spec;
 
 @Command(name="line-items", mixinStandardHelpOptions = true)
 public class InvoiceLineItemsListCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(InvoiceLineItemsListCommand.class);
 
     @Spec
     CommandSpec spec;
@@ -31,7 +27,7 @@ public class InvoiceLineItemsListCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

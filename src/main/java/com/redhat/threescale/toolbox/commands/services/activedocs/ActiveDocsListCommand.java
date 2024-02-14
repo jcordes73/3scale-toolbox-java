@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.services.activedocs;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
@@ -10,11 +8,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
 @Command(name="list", mixinStandardHelpOptions = true)
-public class ActiveDocsListCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ActiveDocsListCommand.class);
-
-    @Spec
+public class ActiveDocsListCommand implements Runnable {    @Spec
     CommandSpec spec;
 
     @Inject
@@ -27,7 +21,7 @@ public class ActiveDocsListCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

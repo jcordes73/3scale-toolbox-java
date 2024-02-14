@@ -1,7 +1,5 @@
 package com.redhat.threescale.toolbox.commands.provider.objects;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementService;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
@@ -13,8 +11,6 @@ import picocli.CommandLine.Spec;
 
 @Command(name="status", mixinStandardHelpOptions = true)
 public class ObjectStatusCommand implements Runnable {
-
-    private static final Logger LOG = Logger.getLogger(ObjectStatusCommand.class);
 
     @Spec
     CommandSpec spec;
@@ -35,7 +31,7 @@ public class ObjectStatusCommand implements Runnable {
 
             spec.commandLine().getOut().println(response);
         } catch (Exception e){
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }

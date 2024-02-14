@@ -1,18 +1,19 @@
 package com.redhat.threescale.toolbox.commands.accounts.servicecontracts;
 
-import org.jboss.logging.Logger;
-
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Command(name="delete", mixinStandardHelpOptions = true)
 public class AccountServiceContractsDeleteCommand implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(AccountServiceContractsDeleteCommand.class);
-
+    @Spec
+    CommandSpec spec;
+    
     @Inject
     AccountManagementServiceFactory accountManagementServiceFactory;
 
@@ -27,7 +28,7 @@ public class AccountServiceContractsDeleteCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().deleteAccountServiceContract(accountId, serviceContractId);
          } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            spec.commandLine().getOut().println(e.getMessage());
         }
     }
 }
