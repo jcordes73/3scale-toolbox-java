@@ -9,7 +9,9 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 @Command(name="member", mixinStandardHelpOptions = true)
-public class UserMemberCommand implements Runnable {    @Spec
+public class UserMemberCommand implements Runnable {
+    
+    @Spec
     CommandSpec spec;
     
     @Inject

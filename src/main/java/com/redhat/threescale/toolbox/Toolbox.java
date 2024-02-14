@@ -95,8 +95,12 @@ public class Toolbox implements Runnable, QuarkusApplication {
             exitCode = runBatch(commandLine, args);
         } else if (args.length > 0 && "-i".equals(args[0])) {
             runInteractive(commandLine);
-        } else {
+        } else if (args.length > 0) {
             exitCode = executeLine(new PrintWriter(System.out), commandLine, String.join(" ", args));
+        } else {
+            commandLine.usage(System.out);
+
+            exitCode = 0;
         }
 
         return exitCode;

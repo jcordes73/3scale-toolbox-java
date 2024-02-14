@@ -11,7 +11,6 @@ import picocli.CommandLine.Spec;
 @Command(name="delete", mixinStandardHelpOptions = true)
 public class UserDeleteCommand implements Runnable {
 
-
     @Spec
     CommandSpec spec;
     
