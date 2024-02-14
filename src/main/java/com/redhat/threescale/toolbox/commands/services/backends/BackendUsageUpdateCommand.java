@@ -32,7 +32,7 @@ public class BackendUsageUpdateCommand implements Runnable {
         try {
             accountManagementServiceFactory.getAccountManagementService().updateBackendUsage(systemId, backendUsageId, path);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error(e.getMessage());
         }        
     }
 }
