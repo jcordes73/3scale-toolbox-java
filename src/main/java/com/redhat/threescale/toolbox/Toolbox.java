@@ -163,6 +163,8 @@ public class Toolbox implements Runnable, QuarkusApplication {
         Parser parser = new DefaultParser();
 
         PicocliCommands picocliCommands = new PicocliCommands(commandLine);
+        commandLine.usage(System.out);
+        
         Terminal terminal = TerminalBuilder.builder().build();
 
         SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, workDir, null);

@@ -2,7 +2,9 @@ package com.redhat.threescale.toolbox.rest.client.service;
 
 import java.util.List;
 
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.jboss.resteasy.reactive.RestForm;
 
 import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 import jakarta.ws.rs.Consumes;
@@ -17,6 +19,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
 @Path("/admin/api")
@@ -496,10 +500,24 @@ public interface AccountManagementService {
     );
 
     @GET
+    @Path("/users.xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public String getUsers();
+
+    @GET
     @Path("/users/{userId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getUser(
         @PathParam("userId") int userId
+    );
+
+    @POST
+    @Path("/users.xml")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void createUser(
+        @FormParam("username") String userName,
+        @FormParam("email") String email,
+        @FormParam("password") String password  
     );
 
     @PUT
@@ -551,8 +569,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateUserPermissions(
         @PathParam("userId") int userId,
-        @FormParam("allowed_service_ids") List<String> allowedServiceIds,
-        @FormParam("allowed_sections") List<String> allowedSections
+        MultivaluedHashMap<String,String> request
     );
 
     @PUT
@@ -572,12 +589,39 @@ public interface AccountManagementService {
     @POST
     @Path("/users/{userId}/access_tokens.json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public String createAccessToken(
-        @PathParam("userId") String userId,
-        @FormParam("name") String name,
-        @FormParam("permission") String permission,
-        @FormParam("scopes") List<String> scopes);
+        @PathParam("userId") int userId,
+        MultivaluedHashMap<String,String> request
+    );
+
+    @GET
+    @Path("/personal/access_tokens.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getPersonalAccessTokens(
+        @QueryParam("name") String name
+    );
+    
+    @GET
+    @Path("/personal/access_tokens/{id}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getPersonalAccessToken(
+        @PathParam("id") String id
+    );
+
+    @POST
+    @Path("/personal/access_tokens.json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String createPersonalAccessToken(
+        MultivaluedMap<String,String> accessTokenRequest
+    );
+
+    @DELETE
+    @Path("/personal/access_tokens/{id}.json")
+    public void deletePersonalAccessToken(
+        @PathParam("id") String id
+    );
 
     @GET
     @Path("/account_plans.xml")
@@ -1242,13 +1286,7 @@ public interface AccountManagementService {
     @Path("/fields_definitions.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createFieldDefinition(
-        @FormParam("target") FieldTarget target,
-        @FormParam("name") String name,
-        @FormParam("label") String label,
-        @FormParam("required") Boolean required,
-        @FormParam("hidden") Boolean hidden,
-        @FormParam("read_only") Boolean readOnly,
-        @FormParam("choices") List<String> choices
+        MultivaluedHashMap<String,String> request
     );
 
     @GET
@@ -1263,13 +1301,7 @@ public interface AccountManagementService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateFieldDefinition(
         @PathParam("fieldDefinitionId") String fieldDefinitionId,
-        @FormParam("target") FieldTarget target,
-        @FormParam("label") String label,
-        @FormParam("required") Boolean required,
-        @FormParam("position") Integer position,
-        @FormParam("hidden") Boolean hidden,
-        @FormParam("read_only") Boolean readOnly,
-        @FormParam("choices") List<String> choices
+        MultivaluedHashMap<String,String> request
     );
 
     @GET
@@ -1445,14 +1477,14 @@ public interface AccountManagementService {
     );
 
     @GET
-    @Path("/services/{service_id}/features.xml")
+    @Path("/services/{serviceId}/features.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceFeatures(
         @PathParam("serviceId") int serviceId
     );
 
     @POST
-    @Path("/services/{service_id}/features.xml")
+    @Path("/services/{serviceId}/features.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void createServiceFeature(
         @PathParam("serviceId") int serviceId,
@@ -1463,7 +1495,7 @@ public interface AccountManagementService {
     );
 
     @GET
-    @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
+    @Path("/services/{serviceId}/features/{serviceFeatureId}.xml")
     @Produces(MediaType.APPLICATION_XML)
     public String getServiceFeature(
         @PathParam("serviceId") int serviceId,
@@ -1471,7 +1503,7 @@ public interface AccountManagementService {
     );
 
     @PUT
-    @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
+    @Path("/services/{serviceId}/features/{serviceFeatureId}.xml")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public void updateServiceFeature(
         @PathParam("serviceId") int serviceId,
@@ -1481,7 +1513,7 @@ public interface AccountManagementService {
     );
     
     @DELETE
-    @Path("/services/{service_id}/features/{serviceFeatureId}.xml")
+    @Path("/services/{serviceId}/features/{serviceFeatureId}.xml")
     public void deleteServiceFeature(
         @PathParam("serviceId") int serviceId,
         @PathParam("serviceFeatureId") int serviceFeatureId

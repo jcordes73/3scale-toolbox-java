@@ -1,5 +1,6 @@
 package com.redhat.threescale.toolbox.commands.provider.account;
 
+import com.redhat.threescale.toolbox.commands.provider.account.personal.ProviderAccountPersonalCommand;
 import com.redhat.threescale.toolbox.commands.provider.account.users.UsersCommand;
 import com.redhat.threescale.toolbox.commands.provider.proxies.ProxiesCommand;
 
@@ -12,6 +13,7 @@ import picocli.CommandLine.ParameterException;
 @Command(name="account", mixinStandardHelpOptions = true, 
          subcommands = {ProviderAccountGetCommand.class,
                         ProviderAccountUpdateCommand.class,
+                        ProviderAccountPersonalCommand.class,
                         UsersCommand.class,
                         ProxiesCommand.class
                         }, 

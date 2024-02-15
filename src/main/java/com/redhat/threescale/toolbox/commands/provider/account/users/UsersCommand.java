@@ -7,7 +7,9 @@ import picocli.CommandLine.ParameterException;
 
 
 @Command(name="users", mixinStandardHelpOptions = true, 
-         subcommands = {UserGetCommand.class,
+         subcommands = {UserListCommand.class,
+                        UserGetCommand.class,
+                        UserCreateCommand.class,
                         UserUpdateCommand.class,
                         UserDeleteCommand.class,
                         UserActivateCommand.class,

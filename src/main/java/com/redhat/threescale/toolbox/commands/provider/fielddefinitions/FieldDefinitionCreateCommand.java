@@ -7,6 +7,7 @@ import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServic
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -50,11 +51,25 @@ public class FieldDefinitionCreateCommand implements Runnable {
 
         try {
 
-            List<String> choicesList = null;
-            if (choices != null)
-                choicesList = Arrays.asList(choices.split(","));
+            MultivaluedHashMap<String,String> request = new MultivaluedHashMap<>();
 
-            accountManagementServiceFactory.getAccountManagementService().createFieldDefinition(fieldTarget, name, label, required, hidden, readOnly, choicesList);
+            request.addFirst("name", name);
+            request.addFirst("target", fieldTarget.toString());
+            request.addFirst("label", label);
+
+            if (required != null)
+                request.addFirst("required", required.toString());
+
+            if (hidden != null)
+                request.addFirst("hidden", hidden.toString());
+
+            if (readOnly != null)
+                request.addFirst("read_only", readOnly.toString());
+
+            if (choices != null)
+                request.put("choices", Arrays.asList(choices.split(",")));
+
+            accountManagementServiceFactory.getAccountManagementService().createFieldDefinition(request);
         } catch (Exception e) {
             spec.commandLine().getOut().println(e.getMessage());
         }

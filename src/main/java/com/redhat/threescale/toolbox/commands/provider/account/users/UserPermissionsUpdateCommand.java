@@ -6,6 +6,7 @@ import java.util.List;
 import com.redhat.threescale.toolbox.rest.client.service.AccountManagementServiceFactory;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -33,15 +34,15 @@ public class UserPermissionsUpdateCommand implements Runnable {
     @Override
     public void run() {
         try {
-            List<String> allowedServiceIdsList = null;
+            MultivaluedHashMap<String,String> request = new MultivaluedHashMap<>();
+            
             if (allowedServiceIds != null)
-                allowedServiceIdsList= Arrays.asList(allowedServiceIds.split(","));
+                request.put("allowed_service_ids", Arrays.asList(allowedServiceIds.split(",")));
 
-            List<String> allowedSectionsList = null;
             if (allowedSections != null)
-                allowedSectionsList = Arrays.asList(allowedSections.split(","));
+                request.put("allowed_sections", Arrays.asList(allowedSections.split(",")));
                 
-            accountManagementServiceFactory.getAccountManagementService().updateUserPermissions(userId, allowedServiceIdsList, allowedSectionsList);
+            accountManagementServiceFactory.getAccountManagementService().updateUserPermissions(userId, request);
         } catch (Exception e) {
             spec.commandLine().getOut().println(e.getMessage());
         }   
