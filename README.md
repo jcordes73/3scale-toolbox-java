@@ -32,8 +32,8 @@ threescale.tenant.<tenant-name>.provider_key=<provider-key>
 ```
 To get the access-token and the Admin-URL for the default admin instance use this command:
 ```bash
-ACCESS_TOKEN=`oc get secret system-seed -o json | jq -r '.data.ADMIN_ACCESS_TOKEN' | base64 -d`
-ADMIN_HOST=`oc get route | grep 3scale-admin | awk '{print $2}'`
+export ACCESS_TOKEN=`oc get secret system-seed -o json | jq -r '.data.ADMIN_ACCESS_TOKEN' | base64 -d`
+export ADMIN_HOST=`oc get route | grep 3scale-admin | awk '{print $2}'`
 ```
 You can configure multiple tenants in the configuration file by adding additional **threescale.tenant.<tenant-name>** sections, the currently active tenant is defined by the **threescale.tenant** setting.
 
@@ -46,10 +46,7 @@ or
 config tenants create <tenant-name> <admin-url> --provider-key=<provider-key>
 ```
 Right now this configuration is not persisted in 3scale-config.properties. You can also use environment variables on the commandline, please make sure to **export** them first:
-```bash
-export ADMIN_HOST
-export ACCESS_TOKEN
-```
+
 Now you can use those environment variables in the CLI
 ```bash
 config tenants create admin https://${ADMIN_HOST} --access-token=${ACCESS_TOKEN}

@@ -88,8 +88,24 @@ public class ActiveDocsCreateCommand implements Runnable {
 
             if (result.getMessages() != null) result.getMessages().forEach(out::println);
 
-            accountManagementServiceFactory.getAccountManagementService().createActiveDocs(name, systemName, serviceId, body, description, published, skipSwaggerValidation);
+            try {
+                accountManagementServiceFactory.getAccountManagementService().createActiveDocs(name, systemName, serviceId, body, description, published, skipSwaggerValidation);
+            } catch (Exception ae) {
+                out.println("Error createing activedoc " + ae.getMessage());
+            }
 
+            String basePath = "";
+
+            if (openApi.getServers() != null) {
+                String serverUrl = openApi.getServers().get(0).getUrl(); 
+            
+                if (serverUrl != null && serverUrl.startsWith("{apiRoot}/")) {
+                    basePath = serverUrl.substring(serverUrl.indexOf("/"));
+                } else if (serverUrl.startsWith("/") && serverUrl.length() > 1) {
+                    basePath = serverUrl;
+                }
+            }
+            
             setSecurity(openApi);
 
             String metrics = accountManagementServiceFactory.getAccountManagementService().getServiceMetrics(serviceId.intValue());
@@ -100,7 +116,7 @@ public class ActiveDocsCreateCommand implements Runnable {
 
             for (Iterator<Entry<String,PathItem>> itPaths = paths.entrySet().iterator(); itPaths.hasNext();){
                 Entry<String,PathItem> entry = itPaths.next();
-                String path = entry.getKey();
+                String path = basePath + entry.getKey();
 
                 createMethodAndMappingRules(path, "GET", entry.getValue().getGet(), serviceId.intValue(), metricId, unit);
                 createMethodAndMappingRules(path, "POST", entry.getValue().getPost(), serviceId.intValue(), metricId, unit);
@@ -109,7 +125,6 @@ public class ActiveDocsCreateCommand implements Runnable {
                 createMethodAndMappingRules(path, "PATCH", entry.getValue().getPatch(), serviceId.intValue(), metricId, unit);
             }            
         } catch (Exception e) {
-            //LOG.error(e.getMessage());
             out.println(e.getMessage());
         } finally {
             if (out != null)
